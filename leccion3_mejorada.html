@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>mögen vs. möchten — Interaktive Deutschlektion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- ════════════════════════════════════════════════════════════
+     PLANTILLA IDIOMAS v2.5 (UPGRADED) — Lección Interactiva Alemán
+     ════════════════════════════════════════════════════════════
+     NOVEDADES: 
+       + Modo Oscuro
+       + Persistencia (Local Storage)
+       + Tecla Enter en Producción
+       + Confeti en 100%
+     ════════════════════════════════════════════════════════════ -->
+
+<style>
+:root {
+  /* Design Tokens - Tema Claro (Por defecto) */
+  --app-bg: #f7f5f2;
+  --burgundy: #581825;
+  --burgundy-light: #f5edf0;
+  --burgundy-hover: #401019;
+  --gold: #b38e4a;
+  --gold-light: #fcf9f2;
+  --accent: #2c5e43;
+  --accent-light: #edf5f0;
+  --dark: #222222;
+  --gray: #666666;
+  --gray-mid: #e1e1e1;
+  --gray-light: #f9f9f9;
+  --white: #ffffff;
+  --header-text: #ffffff;
+  --shadow: 0 4px 20px rgba(88, 24, 37, 0.06);
+  --radius: 12px;
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-theme="dark"] {
+  /* Design Tokens - Tema Oscuro */
+  --app-bg: #121212;
+  --white: #1e1e1e; /* Fondos de tarjetas y paneles */
+  --dark: #e4e4e4;  /* Texto principal */
+  --gray: #a1a1a1;  /* Texto secundario */
+  --gray-mid: #333333; /* Bordes */
+  --gray-light: #252525; /* Fondos secundarios */
+  --burgundy: #b84157; /* Acentuado para destacar en fondo oscuro */
+  --burgundy-light: #3a131c;
+  --burgundy-hover: #d2536b;
+  --gold: #dca74e;
+  --gold-light: #382d16;
+  --accent: #42ad71;
+  --accent-light: #1a3c27;
+  --header-text: #ffffff;
+  --shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', sans-serif; color: var(--dark); background-color: var(--app-bg); line-height: 1.6; -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; transition: background-color 0.3s ease; }
+
+.container { max-width: 1280px; margin: 0 auto; padding: 24px 16px; display: flex; flex-direction: column; gap: 32px; min-height: 100vh; }
+.grid { display: grid; grid-template-columns: 300px 1fr; gap: 32px; align-items: start; }
+@media (max-width: 960px) { .grid { grid-template-columns: 1fr; } }
+
+/* Header + progreso */
+header { background: linear-gradient(135deg, #581825, #401019); padding: 32px 40px; border-radius: var(--radius); color: var(--header-text); box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15); position: relative; overflow: hidden; }
+header::before { content: ""; position: absolute; top: -50%; right: -20%; width: 400px; height: 400px; background: radial-gradient(circle, rgba(179, 142, 74, 0.25) 0%, transparent 70%); border-radius: 50%; pointer-events: none; }
+.header-inner { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 24px; }
+@media (min-width: 768px) { .header-inner { flex-direction: row; justify-content: space-between; align-items: center; } }
+.header-main { flex: 1; }
+.header-badge { display: inline-block; background: rgba(255, 255, 255, 0.15); color: #e8c47a; font-family: 'DM Mono', monospace; font-weight: 500; padding: 6px 16px; border-radius: 30px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1.5px; border: 1px solid rgba(179, 142, 74, 0.3); margin-bottom: 16px; }
+header h1 { font-family: 'DM Serif Display', serif; font-size: clamp(2rem, 5vw, 3rem); font-weight: 400; line-height: 1.1; margin-bottom: 8px; }
+header h1 em { font-style: italic; color: #e8c47a; font-weight: 400; }
+header p { color: rgba(255, 255, 255, 0.85); font-size: 1.05rem; max-width: 600px; font-weight: 300; }
+
+.progress-panel { background: rgba(0,0,0,0.2); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.08); border-radius: var(--radius); padding: 16px 20px; min-width: 220px; }
+.progress-label { display: flex; justify-content: space-between; font-family: 'DM Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.7); margin-bottom: 8px; }
+.progress-label strong { color: #e8c47a; }
+.progress-track { height: 8px; background: rgba(255,255,255,0.12); border-radius: 99px; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, #b38e4a, #e8c47a); border-radius: 99px; transition: width 0.5s ease; width: 0%; }
+.progress-dots { display: flex; justify-content: space-between; margin-top: 10px; gap: 6px; }
+.progress-dot { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.2); transition: var(--transition); flex-shrink: 0; }
+.progress-dot.visited { background: #6fcf97; }
+.progress-dot.current { width: 12px; height: 12px; background: #e8c47a; box-shadow: 0 0 0 3px rgba(179, 142, 74, 0.35); }
+
+/* Sidebar */
+.sidebar-stack { display: flex; flex-direction: column; gap: 20px; }
+.sidebar { background: var(--white); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); border: 1px solid var(--gray-mid); transition: background-color 0.3s ease, border-color 0.3s ease; }
+.nav-title { font-family: 'DM Serif Display', serif; font-size: 1.3rem; color: var(--burgundy); margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid var(--burgundy-light); transition: color 0.3s ease; }
+.nav-menu { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+@media (max-width: 960px) {
+  .nav-menu { flex-direction: row; overflow-x: auto; padding-bottom: 4px; gap: 6px; }
+  .nav-item { flex: 0 0 auto; }
+  .nav-item button { white-space: nowrap; }
+}
+.nav-item button { width: 100%; text-align: left; padding: 12px 16px; background: transparent; border: none; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 0.95rem; color: var(--gray); cursor: pointer; transition: var(--transition); display: flex; align-items: center; gap: 12px; }
+.nav-item button:hover { background: var(--burgundy-light); color: var(--burgundy); }
+.nav-item.active button { background: var(--burgundy); color: #ffffff; }
+.nav-icon { font-family: 'DM Mono', monospace; font-weight: bold; font-size: 0.9rem; min-width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; border-radius: 6px; background: var(--burgundy-light); color: var(--burgundy); transition: var(--transition); }
+.nav-item.active .nav-icon { background: var(--gold); color: #ffffff; }
+
+.voice-panel { background: var(--white); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); border: 1px solid var(--gray-mid); transition: background-color 0.3s ease, border-color 0.3s ease; }
+.voice-panel h3 { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--dark); margin-bottom: 8px; }
+.voice-panel p { font-size: 0.8rem; color: var(--gray); margin-bottom: 14px; line-height: 1.5; }
+.rate-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.rate-btn { padding: 10px 12px; border-radius: 8px; border: 1.5px solid var(--gray-mid); background: var(--white); font-family: 'DM Sans', sans-serif; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: var(--transition); color: var(--gray); }
+.rate-btn:hover { border-color: var(--gold); }
+.rate-btn.active { background: var(--gold-light); border-color: var(--gold); color: var(--burgundy); }
+#reset-progress { color: #d32f2f; }
+#reset-progress:hover { background: #fdf2f2; border-color: #d32f2f; }
+[data-theme="dark"] #reset-progress:hover { background: #3a1616; border-color: #f48fb1; color: #f48fb1; }
+
+.nav-item button:focus-visible, .option-btn:focus-visible, .btn-audio:focus-visible,
+.prod-action-btn:focus-visible, .check-all-btn:focus-visible, .quiz-option-btn:focus-visible,
+.rate-btn:focus-visible, .btn-secondary:focus-visible {
+  outline: 3px solid var(--gold); outline-offset: 2px;
+}
+
+.main-content { background: var(--white); border-radius: var(--radius); padding: 40px; box-shadow: var(--shadow); border: 1px solid var(--gray-mid); min-height: 550px; transition: background-color 0.3s ease, border-color 0.3s ease; }
+@media (max-width: 600px) { .main-content { padding: 24px 16px; } }
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.animate-fade { animation: fadeIn 0.4s ease forwards; }
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade { animation: none; }
+  .wave-bar { animation: none !important; height: 12px !important; }
+  .gram-card:hover { transform: none; }
+  .check-all-btn:hover { transform: none; }
+}
+
+.eyebrow { font-family: 'DM Mono', monospace; text-transform: uppercase; font-size: 0.8rem; color: var(--gold); font-weight: 600; letter-spacing: 2px; margin-bottom: 12px; display: inline-block; background: var(--gold-light); padding: 4px 12px; border-radius: 20px; border: 1px solid rgba(179, 142, 74, 0.2); }
+.section-title { font-family: 'DM Serif Display', serif; font-size: clamp(1.8rem, 4vw, 2.4rem); color: var(--burgundy); margin-bottom: 16px; line-height: 1.2; }
+.section-desc { color: var(--gray); font-size: 1.05rem; margin-bottom: 32px; font-weight: 300; max-width: 720px; }
+.section-desc strong { color: var(--burgundy); }
+
+.card-row { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; }
+@media (max-width: 768px) { .card-row { grid-template-columns: 1fr; } }
+.gram-card { border-radius: var(--radius); padding: 24px; background: var(--gray-light); border: 1.5px solid var(--gray-mid); transition: var(--transition); display: flex; flex-direction: column; }
+.gram-card.mogen { border-top: 4px solid var(--gold); }
+.gram-card.mochten { border-top: 4px solid var(--burgundy); }
+.gram-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); border-color: var(--gold); }
+.card-title { font-family: 'DM Serif Display', serif; font-size: 1.6rem; margin-bottom: 8px; }
+.card-title .verb-main { color: var(--burgundy); }
+.card-sub { font-family: 'DM Mono', monospace; font-size: 0.8rem; color: var(--gray); margin-bottom: 12px; }
+.card-use-badge { display: inline-block; font-size: 0.7rem; padding: 4px 10px; border-radius: 4px; font-family: 'DM Mono', monospace; background: var(--white); border: 1px solid var(--gray-mid); margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--dark); }
+.card-points { list-style: none; display: flex; flex-direction: column; gap: 12px; flex: 1; margin-bottom: 16px; color: var(--dark); }
+.card-points li { font-size: 0.92rem; display: flex; gap: 8px; align-items: flex-start; }
+.card-points li::before { content: "✦"; color: var(--gold); flex-shrink: 0; margin-top: 2px; }
+.card-points strong { font-weight: 600; color: var(--burgundy); }
+.card-points strong.mono { font-family: 'DM Mono', monospace; font-weight: 500; }
+
+.audio-example-box { background: var(--white); border: 1px solid var(--gray-mid); border-radius: 8px; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.example-german { font-weight: 600; color: var(--dark); font-family: 'DM Mono', monospace; font-size: 0.95rem; }
+.example-spanish { font-size: 0.85rem; color: var(--gray); }
+.btn-audio { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; background: var(--burgundy-light); border: none; color: var(--burgundy); cursor: pointer; transition: var(--transition); flex-shrink: 0; }
+.btn-audio:hover { background: var(--burgundy); color: #ffffff; }
+.btn-audio.speaking { background: var(--gold); color: #ffffff; transform: scale(1.05); }
+.btn-audio svg { width: 16px; height: 16px; }
+
+.table-container { overflow-x: auto; border: 1.5px solid var(--gray-mid); border-radius: var(--radius); margin-bottom: 32px; background: var(--white); }
+.table-conjugation { width: 100%; border-collapse: collapse; text-align: left; }
+.table-conjugation thead { background: var(--burgundy-light); color: var(--burgundy); }
+.table-conjugation th { padding: 14px 16px; font-weight: 600; font-size: 0.85rem; font-family: 'DM Mono', monospace; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid var(--gray-mid); }
+.table-conjugation td { padding: 14px 16px; border-bottom: 1px solid var(--gray-mid); font-size: 0.95rem; }
+.table-conjugation tr:last-child td { border-bottom: none; }
+.table-conjugation tr.row-highlight { background: var(--gold-light); }
+.table-conjugation tr:hover { background-color: var(--gray-light); }
+.pronoun-cell { color: var(--dark); font-size: 0.92rem; font-weight: 500; }
+.pron-sub { display: block; font-size: 0.75rem; color: var(--gray); font-weight: 300; margin-top: 2px; }
+.badge-igual { display: inline-block; margin-left: 6px; font-size: 0.65rem; font-family: 'DM Mono', monospace; font-weight: 700; padding: 2px 6px; border-radius: 4px; background: rgba(179, 142, 74, 0.2); color: var(--gold); letter-spacing: 0.5px; }
+.verb-cell { font-weight: 600; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.verb-cell .german { font-family: 'DM Mono', monospace; color: var(--burgundy); }
+.verb-cell .german.gold { color: var(--gold); }
+
+.cloze-list { display: flex; flex-direction: column; gap: 24px; }
+.cloze-item { background: var(--gray-light); border: 1.5px solid var(--gray-mid); border-radius: var(--radius); padding: 24px; transition: var(--transition); }
+.cloze-header { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 0.85rem; color: var(--gray); flex-wrap: wrap; gap: 8px; }
+.cloze-badge { font-family: 'DM Mono', monospace; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; padding: 3px 8px; border-radius: 4px; background: var(--gray-mid); color: var(--dark); }
+.cloze-item.correct .cloze-badge { background: var(--accent); color: #ffffff; }
+.cloze-item.incorrect .cloze-badge { background: #d32f2f; color: #ffffff; }
+.cloze-sentence { font-size: 1.15rem; margin-bottom: 16px; font-weight: 500; color: var(--dark); }
+.cloze-gap { display: inline-block; min-width: 90px; border-bottom: 2px dashed var(--burgundy); color: var(--burgundy); font-weight: 600; font-family: 'DM Mono', monospace; text-align: center; padding: 0 8px; }
+.cloze-options { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.option-btn { background: var(--white); border: 1.5px solid var(--gray-mid); border-radius: 8px; padding: 8px 16px; font-family: 'DM Mono', monospace; font-weight: 500; font-size: 0.9rem; cursor: pointer; transition: var(--transition); color: var(--dark); }
+.option-btn:hover { border-color: var(--burgundy); background: var(--burgundy-light); color: var(--burgundy); }
+.option-btn.selected { background: var(--burgundy); color: #ffffff; border-color: var(--burgundy); }
+.cloze-item.correct { border-color: var(--accent); background: var(--accent-light); box-shadow: 0 0 16px rgba(44, 94, 67, 0.12); }
+.cloze-item.incorrect { border-color: #d32f2f; background: rgba(211, 47, 47, 0.05); }
+.cloze-feedback { margin-top: 14px; padding: 12px 14px; border-radius: 8px; font-size: 0.88rem; display: none; }
+.cloze-item.correct .cloze-feedback.ok { display: block; background: rgba(44, 94, 67, 0.1); border: 1px solid rgba(44, 94, 67, 0.3); color: var(--accent); }
+.cloze-item.incorrect .cloze-feedback.hint { display: block; background: rgba(211, 47, 47, 0.1); border: 1px solid rgba(211, 47, 47, 0.3); color: #e53935; }
+.btn-listen { margin-left: auto; padding: 8px 14px; border-radius: 8px; background: var(--burgundy-light); border: none; color: var(--burgundy); font-size: 0.8rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: var(--transition); }
+.btn-listen:hover { background: var(--burgundy); color: #ffffff; }
+
+.prod-list { display: flex; flex-direction: column; gap: 24px; }
+.prod-item { background: var(--white); border: 1.5px solid var(--gray-mid); border-radius: var(--radius); padding: 24px; }
+.prod-meta { font-size: 0.75rem; color: var(--gray); font-family: 'DM Mono', monospace; margin-bottom: 8px; }
+.prod-instruction { font-size: 1.05rem; font-weight: 500; margin-bottom: 16px; color: var(--dark); }
+.prod-input-wrapper { display: flex; gap: 12px; }
+@media (max-width: 600px) { .prod-input-wrapper { flex-direction: column; } }
+.prod-input { flex: 1; padding: 12px 16px; border-radius: 8px; border: 1.5px solid var(--gray-mid); font-family: 'DM Sans', sans-serif; font-size: 1rem; outline: none; transition: var(--transition); background: var(--gray-light); color: var(--dark); }
+.prod-input:focus { border-color: var(--burgundy); box-shadow: 0 0 0 3px var(--burgundy-light); background: var(--white); }
+.prod-action-btn { background: var(--burgundy); color: #ffffff; border: none; padding: 12px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: var(--transition); white-space: nowrap; }
+.prod-action-btn:hover { background: var(--burgundy-hover); }
+.prod-feedback { margin-top: 14px; padding: 14px; border-radius: 8px; font-size: 0.92rem; display: none; }
+.prod-feedback.visible { display: block; }
+.prod-feedback.empty  { background: rgba(211, 47, 47, 0.1); border: 1px solid rgba(211, 47, 47, 0.3); color: #e53935; }
+.prod-feedback.exact  { background: rgba(44, 94, 67, 0.1); border: 1px solid rgba(44, 94, 67, 0.3); color: var(--accent); }
+.prod-feedback.close  { background: rgba(179, 142, 74, 0.1); border: 1px solid rgba(179, 142, 74, 0.3); color: var(--gold); }
+
+.quiz-block { background: var(--gray-light); padding: 24px; border-radius: var(--radius); border: 1.5px solid var(--gray-mid); margin-bottom: 20px; }
+.quiz-meta { font-family: 'DM Mono', monospace; font-size: 0.75rem; color: var(--gold); font-weight: 600; margin-bottom: 8px; }
+.quiz-question { font-size: 1.05rem; margin-bottom: 16px; color: var(--burgundy); font-weight: 600; }
+.quiz-options { display: flex; flex-direction: column; gap: 10px; }
+.quiz-option-btn { padding: 12px 16px; border-radius: 8px; font-family: 'DM Sans', sans-serif; cursor: pointer; text-align: left; transition: var(--transition); background: var(--white); border: 1.5px solid var(--gray-mid); font-size: 0.95rem; color: var(--dark); }
+.quiz-option-btn .opt-letter { font-family: 'DM Mono', monospace; font-size: 0.7rem; opacity: 0.6; margin-right: 8px; }
+.quiz-option-btn:hover { border-color: var(--burgundy); background: var(--burgundy-light); }
+.quiz-option-btn.selected { background: var(--burgundy); color: #ffffff; border-color: var(--burgundy); }
+.quiz-option-btn.selected .opt-letter { opacity: 0.8; }
+.quiz-hint { text-align: center; color: var(--gray); font-size: 0.9rem; margin: 16px 0; }
+.check-all-btn { background: linear-gradient(135deg, var(--gold), #c9a55a); color: #ffffff; border: none; border-radius: 30px; padding: 16px 36px; font-size: 1rem; font-family: 'DM Sans', sans-serif; font-weight: 600; cursor: pointer; box-shadow: 0 6px 20px rgba(179, 142, 74, 0.3); transition: var(--transition); display: block; width: 100%; max-width: 400px; margin: 24px auto 0; }
+.check-all-btn:hover:not(:disabled) { transform: translateY(-2px); }
+.check-all-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; filter: grayscale(1); }
+
+.quiz-results { text-align: center; max-width: 520px; margin: 0 auto; padding: 16px 0; }
+.quiz-results-icon { font-size: 3.5rem; margin-bottom: 16px; }
+.quiz-results-stats { display: flex; justify-content: center; gap: 32px; background: var(--gray-light); border-radius: var(--radius); padding: 24px; margin: 24px 0; border: 1px solid var(--gray-mid); }
+.stat-num { font-family: 'DM Serif Display', serif; font-size: 2rem; color: var(--burgundy); display: block; }
+.stat-lbl { font-family: 'DM Mono', monospace; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px; color: var(--gray); }
+.results-actions { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+.btn-secondary { background: var(--gray-light); color: var(--dark); border: 1.5px solid var(--gray-mid); padding: 12px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: var(--transition); }
+.btn-secondary:hover { background: var(--gray-mid); }
+
+.golden-rule { background: var(--burgundy-light); border-radius: var(--radius); padding: 24px; border: 1px solid rgba(179, 142, 74, 0.3); display: flex; gap: 16px; align-items: flex-start; margin-top: 8px; }
+.golden-rule-icon { font-size: 1.5rem; flex-shrink: 0; }
+.golden-rule-title { font-weight: 600; color: var(--burgundy); margin-bottom: 6px; }
+.golden-rule-text { color: var(--dark); font-size: 0.95rem; line-height: 1.6; }
+
+.tts-indicator { position: fixed; bottom: 24px; right: 24px; background: #222222; color: #ffffff; padding: 14px 22px; border-radius: 16px; font-size: 0.85rem; box-shadow: 0 8px 24px rgba(0,0,0,0.3); display: flex; align-items: center; gap: 12px; opacity: 0; transform: translateY(20px); transition: var(--transition); z-index: 1000; pointer-events: none; max-width: 320px; }
+.tts-indicator.active { opacity: 1; transform: translateY(0); }
+.tts-indicator-label { font-family: 'DM Mono', monospace; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px; color: #e8c47a; display: block; }
+.tts-indicator-text { font-style: italic; display: block; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 220px; }
+.wave-animation { display: flex; gap: 3px; align-items: flex-end; }
+.wave-bar { width: 3px; height: 12px; background: #e8c47a; animation: wave 1s infinite alternate; }
+.wave-bar:nth-child(2) { animation-delay: 0.2s; }
+.wave-bar:nth-child(3) { animation-delay: 0.4s; }
+@keyframes wave { from { height: 4px; } to { height: 16px; } }
+
+.confetti-piece { position: fixed; z-index: 9999; pointer-events: none; top: -20px; }
+
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header id="app-header" aria-label="Información de la lección"></header>
+
+  <div class="grid">
+    <div class="sidebar-stack">
+      <aside class="sidebar" aria-label="Navegación de secciones">
+        <div class="nav-title">Menú de navegación</div>
+        <ul class="nav-menu" id="app-nav" role="list"></ul>
+      </aside>
+
+      <div class="voice-panel" aria-label="Ajustes de la aplicación">
+        <h3>Ajustes</h3>
+        <p>Ajusta el modo visual, la velocidad del audio o reinicia tu progreso.</p>
+        <div class="rate-grid" style="margin-bottom: 12px;">
+          <button type="button" class="rate-btn" data-rate="0.7" id="rate-slow">Audio Lento</button>
+          <button type="button" class="rate-btn active" data-rate="1" id="rate-normal">Audio Normal</button>
+        </div>
+        <div class="rate-grid">
+          <button type="button" class="rate-btn" id="theme-toggle">🌙 Modo Oscuro</button>
+          <button type="button" class="rate-btn" id="reset-progress">🗑️ Reiniciar</button>
+        </div>
+      </div>
+    </div>
+
+    <main class="main-content" id="screen-container" aria-live="polite">
+      <p class="sr-only">Cargando lección…</p>
+    </main>
+  </div>
+</div>
+
+<div class="tts-indicator" id="ttsIndicator" role="status" aria-live="polite" aria-atomic="true" hidden>
+  <div class="wave-animation" aria-hidden="true">
+    <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+  </div>
+  <div>
+    <span class="tts-indicator-label">Pronunciación alemana</span>
+    <span class="tts-indicator-text" id="ttsText">Hör zu…</span>
+  </div>
+</div>
+
+<script>
+const ICON_SPEAKER = '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/></svg>';
+
+/* ════════════════════════════════════════════════════════════
+   ZONA VARIABLE — REEMPLAZAR PARA CADA LECCIÓN
+   No modificar nada fuera de este bloque.
+   ════════════════════════════════════════════════════════════
+ 
+   Slots obligatorios en meta:
+     nivel      — texto del badge superior (ej. "Alemán A1 · Gramática")
+     titulo     — verbo o concepto principal (ej. "mögen")
+     tituloVs   — segundo término del contraste (ej. "möchten")
+     descripcion — descripción visible en el header
+     lang       — código BCP-47 para síntesis de voz (ej. "de-DE")
+     reglaOro   — resumen mnemónico al pie de Explicación (HTML permitido)
+ 
+   Slots obligatorios en cada pantalla:
+     id         — identificador único, sin espacios (ej. "ejercicios")
+     navLabel   — etiqueta visible en el menú (ej. "Ejercicios")
+     navIcon    — número del paso (ej. "03")
+     tipo       — uno de los 5 tipos soportados (ver tipos abajo)
+     datos      — objeto con la estructura del tipo (ver tipos abajo)
+ 
+   Tipos y estructura de datos esperada:
+     'explicacion' → { categoria, titulo, descripcion, tarjetas: [{tipo,verbo,traduccion,insignia,puntos[],ejemplo:{de,es}}] }
+     'conjugacion' → { categoria, titulo, descripcion, tabla: { encabezados[], filas: [{pron,mogen,mochten,igual}] } }
+     'cloze'       → { categoria, titulo, descripcion, items: [{id,contexto,fraseAntes,fraseDespues,opciones[],correcta,pista}] }
+     'produccion'  → { categoria, titulo, descripcion, items: [{id,instruccion,placeholder,solucion}] }
+     'quiz'        → { categoria, titulo, descripcion, preguntas: [{id,pregunta,opciones[],correcta}] }
+   ════════════════════════════════════════════════════════════ */
+const LECCION = {
+  /* Slot 1 — Identidad */
+  meta: {
+    nivel: "Alemán A1 · Ania P6A · Lección 3",
+    titulo: "müssen",
+    tituloVs: "sollen / dürfen",
+    descripcion: "Lección anclada al examen de Kakashi en Naruto. El objetivo es distinguir tres fuerzas: necesidad, voz de otra persona y permiso.",
+    lang: "de-DE",
+    reglaOro: "Primero pregunta: <strong>¿de dónde viene la fuerza?</strong><br><strong>müssen</strong> = la misión o la situación lo exige.<br><strong>sollen</strong> = Kakashi, mamá, profesora o entrenador lo dice.<br><strong>dürfen</strong> = la regla lo permite. Con <strong>nicht</strong>, significa que no está permitido.",
+    quizPerfectMsg: "Completaste la lección sin errores. Ya distingues necesidad, voz de otra persona y permiso.",
+    quizGoodMsg:    "Buen dominio del mapa modal. Repasa solo los casos donde se confunden müssen y sollen.",
+    quizRetryMsg:   "Repasa la regla: misión o necesidad = müssen; alguien lo dice = sollen; permiso = dürfen."
+  },
+ 
+  /* Slot 2 — Pantallas */
+  pantallas: [
+    {
+      id: "explicacion",
+      navLabel: "Explicación",
+      navIcon: "01",
+      tipo: "explicacion",
+      datos: {
+        categoria: "Falencia 3 · Significado modal",
+        titulo: "El examen de Kakashi: tres fuerzas",
+        descripcion: "En esta lección no vamos a conjugar todos los modales. Vamos a decidir qué verbo corresponde según la fuerza que mueve la acción: necesidad, voz de otro o permiso.",
+        tarjetas: [
+          {
+            tipo: "mogen",
+            verbo: "müssen",
+            traduccion: "tener que / ser necesario",
+            insignia: "La misión lo exige",
+            puntos: [
+              "Usa <strong class=\"mono\">müssen</strong> cuando algo es necesario u obligatorio.",
+              "La fuerza puede venir de la misión, del tiempo, de una regla o de una consecuencia.",
+              "No importa si Naruto quiere o no quiere. Si la prueba lo exige, usamos <strong class=\"mono\">müssen</strong>.",
+              "Ejemplo clave: <strong class=\"mono\">Naruto muss den Test bestehen.</strong>"
+            ],
+            ejemplo: {
+              de: "Naruto muss den Test bestehen.",
+              es: "Naruto tiene que aprobar el examen."
+            }
+          },
+          {
+            tipo: "mochten",
+            verbo: "sollen",
+            traduccion: "deber porque alguien lo dice",
+            insignia: "La voz de Kakashi",
+            puntos: [
+              "Usa <strong class=\"mono\">sollen</strong> cuando alguien da una instrucción, mandato o consejo.",
+              "La fuerza viene de una voz: Kakashi, mamá, profesora, entrenador o doctora.",
+              "La señal típica es <strong class=\"mono\">Kakashi sagt:</strong> o <strong class=\"mono\">Mama sagt:</strong>.",
+              "Ejemplo clave: <strong class=\"mono\">Kakashi sagt: Naruto soll warten.</strong>"
+            ],
+            ejemplo: {
+              de: "Kakashi sagt: Naruto soll warten.",
+              es: "Kakashi dice: Naruto debe esperar."
+            }
+          },
+          {
+            tipo: "tercer",
+            verbo: "dürfen",
+            traduccion: "tener permiso / poder",
+            insignia: "La regla lo permite",
+            puntos: [
+              "Usa <strong class=\"mono\">dürfen</strong> cuando alguien tiene permiso.",
+              "Si aparece <strong class=\"mono\">nicht</strong>, significa que no está permitido.",
+              "Ya conoces una forma importante: <strong class=\"mono\">ich darf</strong> y <strong class=\"mono\">Isabela darf</strong>.",
+              "Ejemplo clave: <strong class=\"mono\">Naruto darf nicht essen.</strong>"
+            ],
+            ejemplo: {
+              de: "Naruto darf nicht essen.",
+              es: "Naruto no tiene permiso para comer."
+            }
+          }
+        ]
+      }
+    },
+ 
+    {
+      id: "entscheidung",
+      navLabel: "Mapa",
+      navIcon: "02",
+      tipo: "conjugacion",
+      datos: {
+        categoria: "Mapa de decisión",
+        titulo: "¿De dónde viene la fuerza?",
+        descripcion: "No memorices primero. Decide de dónde viene la fuerza: si viene de la misión o necesidad, usa <strong>muss</strong>; si viene de una voz, usa <strong>soll</strong>; si viene de permiso, usa <strong>darf</strong>.",
+        tabla: {
+          encabezados: ["Situación", "Verbo correcto", "Frase modelo"],
+          filas: [
+            { pron: "La misión lo exige",            mogen: "muss",      mochten: "Naruto muss den Test bestehen.",    igual: false, audioMogen: "muss",      audioMochten: "Naruto muss den Test bestehen." },
+            { pron: "Kakashi da una instrucción",     mogen: "soll",      mochten: "Naruto soll warten.",               igual: false, audioMogen: "soll",      audioMochten: "Naruto soll warten." },
+            { pron: "La regla lo permite",            mogen: "darf",      mochten: "Sasuke darf trainieren.",           igual: false, audioMogen: "darf",      audioMochten: "Sasuke darf trainieren." },
+            { pron: "La regla lo prohíbe",            mogen: "darf nicht",mochten: "Naruto darf nicht essen.",          igual: false, audioMogen: "darf nicht",audioMochten: "Naruto darf nicht essen." },
+            { pron: "El equipo necesita cooperar",    mogen: "muss",      mochten: "Das Team muss zusammenarbeiten.",   igual: false, audioMogen: "muss",      audioMochten: "Das Team muss zusammenarbeiten." },
+            { pron: "Kakashi se lo dice a Sakura",    mogen: "soll",      mochten: "Sakura soll helfen.",               igual: false, audioMogen: "soll",      audioMochten: "Sakura soll helfen." }
+          ]
+        }
+      }
+    },
+ 
+    {
+      id: "ejercicios",
+      navLabel: "Ejercicios",
+      navIcon: "03",
+      tipo: "cloze",
+      datos: {
+        categoria: "Práctica guiada",
+        titulo: "Elige muss, soll o darf",
+        descripcion: "No traduzcas palabra por palabra. Mira la situación: necesidad, voz de Kakashi o permiso.",
+        items: [
+          { id: "cloze_1", contexto: "La misión exige aprobar el examen",            fraseAntes: "Naruto ",             fraseDespues: " den Test bestehen.", opciones: ["muss","soll","darf"], correcta: "muss", pista: "La misión o situación lo exige. Eso es müssen." },
+          { id: "cloze_2", contexto: "Kakashi da una instrucción",                   fraseAntes: "Kakashi sagt: Naruto ",fraseDespues: " warten.",           opciones: ["muss","soll","darf"], correcta: "soll", pista: "Kakashi lo dice. Cuando la fuerza viene de una voz, usamos sollen." },
+          { id: "cloze_3", contexto: "Hay una prohibición",                          fraseAntes: "Naruto ",             fraseDespues: " nicht essen.",       opciones: ["muss","soll","darf"], correcta: "darf", pista: "Darf + nicht significa que no está permitido." },
+          { id: "cloze_4", contexto: "El equipo necesita cooperar",                  fraseAntes: "Das Team ",           fraseDespues: " zusammenarbeiten.",  opciones: ["muss","soll","darf"], correcta: "muss", pista: "La situación exige cooperación. Eso es müssen." },
+          { id: "cloze_5", contexto: "Kakashi le da una instrucción a Sakura",       fraseAntes: "Kakashi sagt: Sakura ",fraseDespues: " helfen.",           opciones: ["muss","soll","darf"], correcta: "soll", pista: "Kakashi lo dice. Por eso usamos soll." },
+          { id: "cloze_6", contexto: "La regla permite entrenar",                    fraseAntes: "Sasuke ",             fraseDespues: " trainieren.",        opciones: ["muss","soll","darf"], correcta: "darf", pista: "Si la regla permite algo, usamos dürfen." },
+          { id: "cloze_7", contexto: "Kakashi exige silencio con una instrucción",   fraseAntes: "Kakashi sagt: Naruto ",fraseDespues: " ruhig sein.",       opciones: ["muss","soll","darf"], correcta: "soll", pista: "La frase empieza con Kakashi sagt. Es una instrucción de otro." },
+          { id: "cloze_8", contexto: "Sakura también necesita aprobar",              fraseAntes: "Sakura ",             fraseDespues: " den Test bestehen.", opciones: ["muss","soll","darf"], correcta: "muss", pista: "Aprobar el examen es una necesidad de la situación." },
+          { id: "cloze_9", contexto: "La regla no permite mirar la respuesta",       fraseAntes: "Naruto ",             fraseDespues: " nicht die Antwort sehen.", opciones: ["muss","soll","darf"], correcta: "darf", pista: "Darf nicht = no tiene permiso." }
+        ]
+      }
+    },
+ 
+    {
+      id: "produccion",
+      navLabel: "Producción",
+      navIcon: "04",
+      tipo: "produccion",
+      datos: {
+        categoria: "Producción guiada",
+        titulo: "Traduce frases del examen de Kakashi",
+        descripcion: "Aquí sí usamos traducción, porque el objetivo es producir una frase completa en alemán.",
+        items: [
+          { id: "prod_1", instruccion: "Traduce: 'Naruto tiene que aprobar el examen.'",         placeholder: "Escribe aquí tu respuesta\u2026", solucion: "Naruto muss den Test bestehen." },
+          { id: "prod_2", instruccion: "Traduce: 'Kakashi dice: Naruto debe esperar.'",           placeholder: "Escribe aquí tu respuesta\u2026", solucion: "Kakashi sagt: Naruto soll warten." },
+          { id: "prod_3", instruccion: "Traduce: 'Naruto no tiene permiso para comer.'",          placeholder: "Escribe aquí tu respuesta\u2026", solucion: "Naruto darf nicht essen." },
+          { id: "prod_4", instruccion: "Traduce: 'El equipo tiene que trabajar junto.'",          placeholder: "Escribe aquí tu respuesta\u2026", solucion: "Das Team muss zusammenarbeiten." },
+          { id: "prod_5", instruccion: "Traduce: 'Kakashi dice: Sakura debe ayudar.'",            placeholder: "Escribe aquí tu respuesta\u2026", solucion: "Kakashi sagt: Sakura soll helfen." }
+        ]
+      }
+    },
+ 
+    {
+      id: "quiz",
+      navLabel: "Evaluación",
+      navIcon: "05",
+      tipo: "quiz",
+      datos: {
+        categoria: "Mini evaluación",
+        titulo: "Necesidad, voz o permiso",
+        descripcion: "Elige según la fuerza de la situación. No elijas por intuición: identifica primero quién empuja la acción.",
+        preguntas: [
+          { id: "q_1", pregunta: "Si la misión lo exige, \u00bfqué verbo corresponde?",              opciones: ["muss","soll","darf"],                                                                                                                               correcta: 0 },
+          { id: "q_2", pregunta: "Si Kakashi da una instrucción, \u00bfqué verbo corresponde?",       opciones: ["muss","soll","darf"],                                                                                                                               correcta: 1 },
+          { id: "q_3", pregunta: "Si una regla permite algo, \u00bfqué verbo corresponde?",           opciones: ["muss","soll","darf"],                                                                                                                               correcta: 2 },
+          { id: "q_4", pregunta: "\u00bfQué frase expresa prohibición?",                               opciones: ["Naruto muss nicht essen.","Naruto soll nicht essen.","Naruto darf nicht essen."],                                                                   correcta: 2 },
+          { id: "q_5", pregunta: "\u00bfCuál frase significa que Kakashi da una instrucción?",         opciones: ["Naruto muss warten.","Kakashi sagt: Naruto soll warten.","Naruto darf warten."],                                                                    correcta: 1 },
+          { id: "q_6", pregunta: "\u00bfCuál es la diferencia correcta?",                             opciones: ["müssen = necesidad; sollen = alguien dice que debo; dürfen = permiso.","müssen = permiso; sollen = gusto; dürfen = deseo.","müssen = Naruto; sollen = Sakura; dürfen = Kakashi."], correcta: 0 }
+        ]
+      }
+    }
+  ]
+}; /* fin LECCION */
+
+
+
+/* ════════════════════════════════════════════════════════════
+   ZONA FIJA MEJORADA (UPGRADED) — Funciones principales
+   ════════════════════════════════════════════════════════════ */
+
+const STORAGE_KEY = `leccion_${normalizeAnswer(LECCION.meta.titulo)}_${normalizeAnswer(LECCION.meta.tituloVs)}`;
+
+function escapeHtml(str) {
+  return String(str ?? '')
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+function normalizeAnswer(s) {
+  return String(s).toLowerCase().normalize('NFD').replace(/\p{M}/gu, '')
+    .replace(/ß/g, 'ss').replace(/[^\p{L}\p{N}\s]/gu, '').replace(/\s+/g, ' ').trim();
+}
+
+function buildClozePhrase(item, word) {
+  if (!word) return '';
+  return `${item.fraseAntes.trim()} ${word} ${item.fraseDespues.trim()}`.replace(/\s+/g, ' ');
+}
+
+function levenshtein(a, b) {
+  const m = a.length, n = b.length;
+  const dp = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
+  for (let i = 0; i <= m; i++) dp[i][0] = i;
+  for (let j = 0; j <= n; j++) dp[0][j] = j;
+  for (let i = 1; i <= m; i++)
+    for (let j = 1; j <= n; j++) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      dp[i][j] = Math.min(dp[i - 1][j] + 1, dp[i][j - 1] + 1, dp[i - 1][j - 1] + cost);
+    }
+  return dp[m][n];
+}
+
+function isAnswerCorrect(user, solution) {
+  const a = normalizeAnswer(user), b = normalizeAnswer(solution);
+  if (!a) return false;
+  if (a === b) return true;
+  return levenshtein(a, b) <= 2;
+}
+
+function isSingularRow(pron) {
+  const p = pron.toLowerCase();
+  return p.startsWith('ich') || p.startsWith('er') || p.startsWith('er/');
+}
+
+// 🎉 Animación de Confeti
+function triggerConfetti() {
+  const colors = ['#b38e4a', '#581825', '#2c5e43', '#e8c47a', '#ffffff'];
+  for (let i = 0; i < 80; i++) {
+    const conf = document.createElement('div');
+    conf.className = 'confetti-piece';
+    conf.style.left = Math.random() * 100 + 'vw';
+    conf.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+    conf.style.width = Math.random() * 8 + 4 + 'px';
+    conf.style.height = Math.random() * 12 + 6 + 'px';
+    conf.style.opacity = '1';
+    conf.style.transform = `rotate(${Math.random() * 360}deg)`;
+    conf.style.transition = `top ${Math.random() * 2 + 2}s linear, opacity ${Math.random() * 2 + 2}s ease-in, transform ${Math.random() * 2 + 2}s ease`;
+    document.body.appendChild(conf);
+
+    setTimeout(() => {
+      conf.style.top = '100vh';
+      conf.style.transform = `rotate(${Math.random() * 720}deg)`;
+      conf.style.opacity = '0';
+    }, 50);
+    setTimeout(() => conf.remove(), 4500);
+  }
+}
+
+const AppState = {
+  currentScreenId: null,
+  clozeAnswers: {},
+  prodAnswers: {},
+  userAnswers: {},
+  visitedScreens: new Set(),
+  quizEvaluated: false,
+  quizResult: null,
+
+  load() {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const data = JSON.parse(saved);
+        this.clozeAnswers = data.clozeAnswers || {};
+        this.prodAnswers = data.prodAnswers || {};
+        this.userAnswers = data.userAnswers || {};
+        this.visitedScreens = new Set(data.visitedScreens || []);
+        this.quizEvaluated = data.quizEvaluated || false;
+        this.quizResult = data.quizResult || null;
+      }
+    } catch(e) { console.warn('Error loading progress:', e); }
+  },
+
+  save() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        clozeAnswers: this.clozeAnswers,
+        prodAnswers: this.prodAnswers,
+        userAnswers: this.userAnswers,
+        visitedScreens: Array.from(this.visitedScreens),
+        quizEvaluated: this.quizEvaluated,
+        quizResult: this.quizResult
+      }));
+    } catch(e) { console.warn('Error saving progress:', e); }
+  },
+  
+  reset() {
+    localStorage.removeItem(STORAGE_KEY);
+    this.clozeAnswers = {};
+    this.prodAnswers = {};
+    this.userAnswers = {};
+    this.visitedScreens = new Set();
+    this.quizEvaluated = false;
+    this.quizResult = null;
+    Renderer.switchScreen(LECCION.pantallas[0].id);
+  }
+};
+
+const AudioEngine = {
+  isSpeaking: false,
+  activeButton: null,
+  germanVoices: [],
+  rate: 1,
+
+  init() {
+    const loadVoices = () => {
+      this.germanVoices = (window.speechSynthesis?.getVoices() || [])
+        .filter(v => v.lang?.toLowerCase().startsWith('de'));
+    };
+    loadVoices();
+    if (window.speechSynthesis) speechSynthesis.addEventListener('voiceschanged', loadVoices);
+    this.updateRateUI();
+  },
+
+  setRate(value) {
+    this.rate = value;
+    this.updateRateUI();
+  },
+
+  updateRateUI() {
+    document.querySelectorAll('[data-rate]').forEach(btn => {
+      const v = parseFloat(btn.dataset.rate);
+      btn.classList.toggle('active', v === this.rate);
+    });
+  },
+
+  pickVoice() {
+    const voices = this.germanVoices.length ? this.germanVoices
+      : (window.speechSynthesis?.getVoices() || []).filter(v => v.lang?.toLowerCase().startsWith('de'));
+    const google = voices.find(v => v.name?.toLowerCase().includes('google'));
+    const exact = voices.find(v => v.lang === (LECCION.meta.lang || 'de-DE'));
+    return google || exact || voices[0] || null;
+  },
+
+  stop() {
+    window.speechSynthesis?.cancel();
+    this.isSpeaking = false;
+    if (this.activeButton) this.activeButton.classList.remove('speaking');
+    this.activeButton = null;
+    const ind = document.getElementById('ttsIndicator');
+    ind.classList.remove('active');
+    ind.hidden = true;
+  },
+
+  speak(text, buttonElement = null) {
+    if (!text || !window.speechSynthesis) return;
+    this.stop();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = LECCION.meta.lang || 'de-DE';
+    u.rate = this.rate;
+    const voice = this.pickVoice();
+    if (voice) u.voice = voice;
+    const ind = document.getElementById('ttsIndicator');
+    const ttsText = document.getElementById('ttsText');
+    u.onstart = () => {
+      this.isSpeaking = true;
+      this.activeButton = buttonElement;
+      if (buttonElement) buttonElement.classList.add('speaking');
+      ind.hidden = false;
+      ind.classList.add('active');
+      ttsText.textContent = `"${text}"`;
+    };
+    u.onend = () => this.stop();
+    u.onerror = () => this.stop();
+    window.speechSynthesis.speak(u);
+  }
+};
+
+const ThemeManager = {
+  init() {
+    const savedTheme = localStorage.getItem('idiomas_theme');
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+      document.body.setAttribute('data-theme', 'dark');
+      this.updateBtnText(true);
+    }
+  },
+  toggle() {
+    const isDark = document.body.getAttribute('data-theme') === 'dark';
+    if (isDark) {
+      document.body.removeAttribute('data-theme');
+      localStorage.setItem('idiomas_theme', 'light');
+      this.updateBtnText(false);
+    } else {
+      document.body.setAttribute('data-theme', 'dark');
+      localStorage.setItem('idiomas_theme', 'dark');
+      this.updateBtnText(true);
+    }
+  },
+  updateBtnText(isDark) {
+    const btn = document.getElementById('theme-toggle');
+    if (btn) btn.innerHTML = isDark ? '☀️ Modo Claro' : '🌙 Modo Oscuro';
+  }
+};
+
+const Renderer = {
+  eventsBound: false,
+
+  init() {
+    AppState.load();
+    ThemeManager.init();
+    document.title = `${LECCION.meta.titulo} vs. ${LECCION.meta.tituloVs} — Lektion`;
+    this.bindEvents();
+    this.renderHeader();
+    this.renderNav();
+    
+    // Si hay progreso guardado pero no hay currentScreenId, ir a la primera
+    const targetScreen = AppState.currentScreenId || LECCION.pantallas[0]?.id;
+    if (targetScreen) this.switchScreen(targetScreen);
+  },
+
+  bindEvents() {
+    if (this.eventsBound) return;
+    this.eventsBound = true;
+
+    document.getElementById('app-nav').addEventListener('click', e => {
+      const btn = e.target.closest('[data-screen-id]');
+      if (btn) this.switchScreen(btn.dataset.screenId);
+    });
+
+    document.querySelector('.sidebar-stack').addEventListener('click', e => {
+      const rateBtn = e.target.closest('[data-rate]');
+      if (rateBtn) AudioEngine.setRate(parseFloat(rateBtn.dataset.rate));
+      
+      if (e.target.closest('#theme-toggle')) ThemeManager.toggle();
+      
+      if (e.target.closest('#reset-progress')) {
+        if(confirm("¿Estás seguro de que quieres borrar tu progreso y empezar de nuevo?")) {
+          AppState.reset();
+        }
+      }
+    });
+
+    const container = document.getElementById('screen-container');
+    
+    // ⌨️ Evento Enter en campos de producción
+    container.addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        const input = e.target.closest('[data-prod-input]');
+        if (input) {
+          const checkBtn = document.querySelector(`button[data-prod-check="${input.dataset.prodInput}"]`);
+          if (checkBtn) checkBtn.click();
+        }
+      }
+    });
+
+    container.addEventListener('click', e => {
+      const speakBtn = e.target.closest('[data-speak]');
+      if (speakBtn) { AudioEngine.speak(speakBtn.dataset.speak, speakBtn); return; }
+
+      const clozeBtn = e.target.closest('[data-cloze-id][data-cloze-opt]');
+      if (clozeBtn) { this.selectCloze(clozeBtn.dataset.clozeId, clozeBtn.dataset.clozeOpt); return; }
+
+      const prodBtn = e.target.closest('[data-prod-check]');
+      if (prodBtn) { this.checkProd(prodBtn.dataset.prodCheck, prodBtn.dataset.prodSolution); return; }
+
+      const quizBtn = e.target.closest('[data-quiz-id][data-quiz-opt]');
+      if (quizBtn) { this.selectQuiz(quizBtn.dataset.quizId, Number(quizBtn.dataset.quizOpt)); return; }
+
+      if (e.target.closest('[data-quiz-evaluate]')) this.evaluateQuiz();
+      if (e.target.closest('[data-quiz-restart]')) this.restartQuiz();
+      const backBtn = e.target.closest('.btn-secondary[data-screen-id]');
+      if (backBtn) this.switchScreen(backBtn.dataset.screenId);
+    });
+
+    container.addEventListener('input', e => {
+      const input = e.target.closest('[data-prod-input]');
+      if (input) {
+        AppState.prodAnswers[input.dataset.prodInput] = input.value;
+        this.calculateProgress();
+        AppState.save(); // Autoguardado al escribir
+      }
+    });
+  },
+
+  renderHeader() {
+    const m = LECCION.meta;
+    const screenIds = LECCION.pantallas.map(p => p.id);
+    document.getElementById('app-header').innerHTML = `
+      <div class="header-inner">
+        <div class="header-main">
+          <div class="header-badge">${escapeHtml(m.nivel)}</div>
+          <h1 lang="de">${escapeHtml(m.titulo)} <em>vs.</em> ${escapeHtml(m.tituloVs)}</h1>
+          <p>${escapeHtml(m.descripcion)}</p>
+        </div>
+        <div class="progress-panel" aria-label="Progreso de la lección">
+          <div class="progress-label">
+            <span>Progreso</span>
+            <strong id="progressPercent">0%</strong>
+          </div>
+          <div class="progress-track"><div class="progress-fill" id="progressBar"></div></div>
+          <div class="progress-dots" id="progressDots">
+            ${screenIds.map(id => `<span class="progress-dot" id="prog-dot-${escapeHtml(id)}" title="${escapeHtml(id)}"></span>`).join('')}
+          </div>
+        </div>
+      </div>`;
+  },
+
+  renderNav() {
+    document.getElementById('app-nav').innerHTML = LECCION.pantallas.map(p => `
+      <li class="nav-item" id="nav-${escapeHtml(p.id)}">
+        <button type="button" data-screen-id="${escapeHtml(p.id)}" aria-controls="screen-container">
+          <span class="nav-icon" aria-hidden="true">${escapeHtml(p.navIcon)}</span>
+          ${escapeHtml(p.navLabel)}
+        </button>
+      </li>`).join('');
+  },
+
+  calculateProgress() {
+    const N = LECCION.pantallas.length;
+    if (!N) return;
+
+    const completitudDe = p => {
+      switch (p.tipo) {
+        case 'explicacion':
+        case 'conjugacion': return AppState.visitedScreens.has(p.id) ? 1 : 0;
+        case 'cloze': return (p.datos.items?.filter(i => AppState.clozeAnswers[i.id] !== undefined).length ?? 0) / (p.datos.items?.length || 1);
+        case 'produccion': return (p.datos.items?.filter(i => AppState.prodAnswers[i.id]?.trim()).length ?? 0) / (p.datos.items?.length || 1);
+        case 'quiz':
+          if (AppState.quizEvaluated) return 1;
+          return (p.datos.preguntas?.filter(q => AppState.userAnswers[q.id] !== undefined).length ?? 0) / (p.datos.preguntas?.length || 1);
+        default: return AppState.visitedScreens.has(p.id) ? 1 : 0;
+      }
+    };
+
+    const pct = Math.round(LECCION.pantallas.reduce((sum, p) => sum + completitudDe(p), 0) / N * 100);
+
+    const bar   = document.getElementById('progressBar');
+    const label = document.getElementById('progressPercent');
+    if (bar)   bar.style.width   = `${pct}%`;
+    if (label) label.textContent = `${pct}%`;
+
+    LECCION.pantallas.forEach(p => {
+      const dot = document.getElementById(`prog-dot-${p.id}`);
+      if (!dot) return;
+      dot.className = 'progress-dot';
+      if (AppState.currentScreenId === p.id) dot.classList.add('current');
+      else if (AppState.visitedScreens.has(p.id)) dot.classList.add('visited');
+    });
+  },
+
+  switchScreen(screenId) {
+    AudioEngine.stop();
+    AppState.currentScreenId = screenId;
+    AppState.visitedScreens.add(screenId);
+    AppState.save(); // Autoguardado de pantalla actual
+
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.classList.remove('active');
+      item.querySelector('button')?.removeAttribute('aria-current');
+    });
+    const activeNav = document.getElementById(`nav-${screenId}`);
+    if (activeNav) {
+      activeNav.classList.add('active');
+      activeNav.querySelector('button')?.setAttribute('aria-current', 'page');
+    }
+
+    this.renderContainer();
+    this.calculateProgress();
+    
+    // Scroll top for mobile when switching screens
+    if(window.innerWidth < 960) {
+       document.getElementById('screen-container').scrollIntoView({ behavior: 'smooth' });
+    }
+  },
+
+  getScreen(id) { return LECCION.pantallas.find(p => p.id === id); },
+  getCurrentScreen() { return this.getScreen(AppState.currentScreenId); },
+
+  audioBtn(speakText, label) {
+    return `<button type="button" class="btn-audio" data-speak="${escapeHtml(speakText)}" aria-label="${escapeHtml(label)}">${ICON_SPEAKER}</button>`;
+  },
+
+  renderContainer() {
+    const pantalla = this.getCurrentScreen();
+    const container = document.getElementById('screen-container');
+    if (!pantalla) { container.innerHTML = '<p>Pantalla no encontrada.</p>'; return; }
+
+    const templates = {
+      explicacion: () => this.templateExplicacion(pantalla.datos),
+      conjugacion: () => this.templateConjugacion(pantalla.datos),
+      cloze: () => this.templateCloze(pantalla.datos),
+      produccion: () => this.templateProduccion(pantalla.datos),
+      quiz: () => this.templateQuiz(pantalla.datos)
+    };
+    const html = (templates[pantalla.tipo] || (() => '<p>Tipo no soportado.</p>'))();
+    container.innerHTML = `<div class="animate-fade">${html}</div>`;
+    
+    // Revalidar los campos de producción al renderizar para mostrar feedback si ya existía
+    if (pantalla.tipo === 'produccion') {
+       pantalla.datos.items.forEach(item => {
+          if (AppState.prodAnswers[item.id]) {
+             // Solo validar visualmente pero no auto-reproducir audio
+             this.visualCheckProd(item.id, item.solucion);
+          }
+       });
+    }
+  },
+
+  templateExplicacion(d) {
+    const regla = LECCION.meta.reglaOro;
+    return `
+      <div class="eyebrow">${escapeHtml(d.categoria)}</div>
+      <h2 class="section-title">${escapeHtml(d.titulo)}</h2>
+      <p class="section-desc">${escapeHtml(d.descripcion)}</p>
+      <div class="card-row">
+        ${d.tarjetas.map(t => `
+          <div class="gram-card ${escapeHtml(t.tipo)}">
+            <div class="card-title"><span class="verb-main" lang="de">${escapeHtml(t.verbo)}</span></div>
+            <p class="card-sub">${escapeHtml(t.traduccion)}</p>
+            <span class="card-use-badge">${escapeHtml(t.insignia)}</span>
+            <ul class="card-points">${t.puntos.map(p => `<li>${p}</li>`).join('')}</ul>
+            <div class="audio-example-box">
+              <div>
+                <p style="font-size:0.7rem;font-family:'DM Mono',monospace;color:var(--gray);text-transform:uppercase;margin-bottom:4px;">Ejemplo</p>
+                <div class="example-german" lang="de">${escapeHtml(t.ejemplo.de)}</div>
+                <div class="example-spanish">${escapeHtml(t.ejemplo.es)}</div>
+              </div>
+              ${this.audioBtn(t.ejemplo.de, 'Reproducir ejemplo')}
+            </div>
+          </div>`).join('')}
+      </div>
+      ${regla ? `
+      <div class="golden-rule">
+        <span class="golden-rule-icon" aria-hidden="true">🔑</span>
+        <div>
+          <p class="golden-rule-title">La regla de oro</p>
+          <p class="golden-rule-text">${regla}</p>
+        </div>
+      </div>` : ''}`;
+  },
+
+  templateConjugacion(d) {
+    return `
+      <div class="eyebrow">${escapeHtml(d.categoria)}</div>
+      <h2 class="section-title">${escapeHtml(d.titulo)}</h2>
+      <p class="section-desc">${d.descripcion}</p>
+      <div class="table-container">
+        <table class="table-conjugation">
+          <thead><tr>${d.tabla.encabezados.map(h => `<th scope="col">${escapeHtml(h)}</th>`).join('')}</tr></thead>
+          <tbody>
+            ${d.tabla.filas.map(f => {
+              const highlight = f.igual || isSingularRow(f.pron);
+              const speakBase = f.pron.replace(/\s*\(.*\)/, '').trim();
+              const speakM  = f.audioMogen    || `${speakBase} ${f.mogen}`;
+              const speakMc = f.audioMochten  || `${speakBase} ${f.mochten}`;
+              const pronMatch = f.pron.match(/^([^(]+?)(?:\s*\((.+)\))?$/);
+              const pronMain = pronMatch ? pronMatch[1].trim() : f.pron;
+              const pronSub  = pronMatch ? pronMatch[2] || '' : '';
+              return `
+              <tr class="${highlight ? 'row-highlight' : ''}">
+                <td class="pronoun-cell">
+                  <span lang="de">${escapeHtml(pronMain)}</span>
+                  ${pronSub ? `<span class="pron-sub">${escapeHtml(pronSub)}</span>` : ''}
+                  ${f.igual ? '<span class="badge-igual">¡IGUALES!</span>' : ''}
+                </td>
+                <td><div class="verb-cell"><span class="german" lang="de">${escapeHtml(f.mogen)}</span>${this.audioBtn(speakM, 'Pronunciar ' + f.mogen)}</div></td>
+                <td><div class="verb-cell"><span class="german gold" lang="de">${escapeHtml(f.mochten)}</span>${this.audioBtn(speakMc, 'Pronunciar ' + f.mochten)}</div></td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>`;
+  },
+
+  templateCloze(d) {
+    return `
+      <div class="eyebrow">${escapeHtml(d.categoria)}</div>
+      <h2 class="section-title">${escapeHtml(d.titulo)}</h2>
+      <p class="section-desc">${escapeHtml(d.descripcion)}</p>
+      <div class="cloze-list">
+        ${d.items.map((item, idx) => {
+          const selected = AppState.clozeAnswers[item.id] ?? null;
+          const ok = selected === item.correcta;
+          const cardClass = selected ? (ok ? 'correct' : 'incorrect') : '';
+          const badge = !selected ? 'Pendiente' : ok ? '✓ Correcto' : '✗ Reintentar';
+          const audioPhrase = selected ? buildClozePhrase(item, selected) : '';
+          return `
+          <div class="cloze-item ${cardClass}">
+            <div class="cloze-header">
+              <span>Enunciado ${idx + 1} · ${escapeHtml(item.contexto)}</span>
+              <span class="cloze-badge">${badge}</span>
+            </div>
+            <p class="cloze-sentence" lang="de">
+              ${escapeHtml(item.fraseAntes)}<span class="cloze-gap">${escapeHtml(selected || '______')}</span>${escapeHtml(item.fraseDespues)}
+            </p>
+            <div class="cloze-options">
+              ${item.opciones.map(opt => `
+                <button type="button" class="option-btn ${selected === opt ? 'selected' : ''}"
+                  data-cloze-id="${escapeHtml(item.id)}" data-cloze-opt="${escapeHtml(opt)}"
+                  aria-pressed="${selected === opt}">${escapeHtml(opt)}</button>`).join('')}
+              ${audioPhrase ? `<button type="button" class="btn-listen" data-speak="${escapeHtml(audioPhrase)}" aria-label="Escuchar frase">Escuchar frase</button>` : ''}
+            </div>
+            <div class="cloze-feedback ok" role="status">⭐ <strong>Excelente:</strong> ${escapeHtml(item.pista)}</div>
+            <div class="cloze-feedback hint" role="status">💡 <strong>Pista:</strong> ${escapeHtml(item.pista)}</div>
+          </div>`;
+        }).join('')}
+      </div>`;
+  },
+
+  selectCloze(itemId, option) {
+    AppState.clozeAnswers[itemId] = option;
+    AppState.save(); // Autoguardado
+    this.renderContainer();
+    this.calculateProgress();
+  },
+
+  templateProduccion(d) {
+    return `
+      <div class="eyebrow">${escapeHtml(d.categoria)}</div>
+      <h2 class="section-title">${escapeHtml(d.titulo)}</h2>
+      <p class="section-desc">${escapeHtml(d.descripcion)}</p>
+      <div class="prod-list">
+        ${d.items.map((item, idx) => {
+          const val = AppState.prodAnswers[item.id] || '';
+          return `
+          <div class="prod-item">
+            <p class="prod-meta">Ejercicio ${idx + 1} · Composición</p>
+            <p class="prod-instruction">${escapeHtml(item.instruccion)}</p>
+            <div class="prod-input-wrapper">
+              <input type="text" id="${escapeHtml(item.id)}" class="prod-input"
+                data-prod-input="${escapeHtml(item.id)}" placeholder="${escapeHtml(item.placeholder)}"
+                value="${escapeHtml(val)}" autocomplete="off" lang="de"
+                aria-describedby="feedback-${escapeHtml(item.id)}" />
+              <button type="button" class="prod-action-btn"
+                data-prod-check="${escapeHtml(item.id)}" data-prod-solution="${escapeHtml(item.solucion)}">
+                Validar y escuchar
+              </button>
+            </div>
+            <div id="feedback-${escapeHtml(item.id)}" class="prod-feedback" role="status"></div>
+          </div>`;
+        }).join('')}
+      </div>`;
+  },
+
+  visualCheckProd(itemId, solution) {
+    const input = document.getElementById(itemId);
+    const fb = document.getElementById(`feedback-${itemId}`);
+    if(!input || !fb) return;
+    const val = (input.value || '').trim();
+    if (!val) return;
+
+    fb.className = 'prod-feedback visible';
+    const exact = normalizeAnswer(val) === normalizeAnswer(solution);
+    const close = !exact && isAnswerCorrect(val, solution);
+
+    if (exact) {
+      fb.classList.add('exact');
+      fb.innerHTML = `⭐ <strong>¡Excepcional!</strong> Frase: <em lang="de">${escapeHtml(solution)}</em>`;
+    } else if (close) {
+      fb.classList.add('close');
+      fb.innerHTML = `👍 Casi correcto. Tu respuesta: <em>${escapeHtml(val)}</em><br>Solución: <strong lang="de">${escapeHtml(solution)}</strong>`;
+    } else {
+      fb.classList.add('close');
+      fb.innerHTML = `💡 Estás cerca. Tu respuesta: <em>${escapeHtml(val)}</em><br>Solución sugerida: <strong lang="de">${escapeHtml(solution)}</strong>`;
+    }
+  },
+
+  checkProd(itemId, solution) {
+    const input = document.getElementById(itemId);
+    const fb = document.getElementById(`feedback-${itemId}`);
+    const val = (input?.value || '').trim();
+
+    if (!val) {
+      fb.className = 'prod-feedback visible empty';
+      fb.textContent = '⚠️ Escribe una respuesta antes de validar.';
+      return;
+    }
+
+    this.visualCheckProd(itemId, solution);
+    AudioEngine.speak(solution);
+    AppState.save(); // Autoguardado
+    this.calculateProgress();
+  },
+
+  templateQuiz(d) {
+    if (AppState.quizEvaluated && AppState.quizResult) {
+      const r = AppState.quizResult;
+      return `
+        <div class="animate-fade quiz-results">
+          <div class="quiz-results-icon" aria-hidden="true">${r.icon}</div>
+          <h2 class="section-title">${escapeHtml(r.title)}</h2>
+          <p class="section-desc" style="margin:0 auto 8px;">${escapeHtml(r.msg)}</p>
+          <div class="quiz-results-stats">
+            <div><span class="stat-num">${r.correct}/${r.total}</span><span class="stat-lbl">Puntaje</span></div>
+            <div><span class="stat-num">${r.pct}%</span><span class="stat-lbl">Eficiencia</span></div>
+          </div>
+          <div class="results-actions">
+            <button type="button" class="prod-action-btn" data-quiz-restart>Reintentar evaluación</button>
+            <button type="button" class="btn-secondary" data-screen-id="${escapeHtml(LECCION.pantallas[0].id)}">Volver al inicio</button>
+          </div>
+        </div>`;
+    }
+
+    const answered = d.preguntas.filter(q => AppState.userAnswers[q.id] !== undefined).length;
+    const total = d.preguntas.length;
+    return `
+      <div class="eyebrow">${escapeHtml(d.categoria)}</div>
+      <h2 class="section-title">${escapeHtml(d.titulo)}</h2>
+      <p class="section-desc">${escapeHtml(d.descripcion)}</p>
+      ${d.preguntas.map((q, idx) => {
+        const sel = AppState.userAnswers[q.id];
+        return `
+        <div class="quiz-block">
+          <p class="quiz-meta">Pregunta ${idx + 1} de ${total}</p>
+          <h3 class="quiz-question">${escapeHtml(q.pregunta)}</h3>
+          <div class="quiz-options" role="group" aria-label="${escapeHtml(q.pregunta)}">
+            ${q.opciones.map((opt, i) => `
+              <button type="button" class="quiz-option-btn ${sel === i ? 'selected' : ''}"
+                data-quiz-id="${escapeHtml(q.id)}" data-quiz-opt="${i}" aria-pressed="${sel === i}">
+                <span class="opt-letter">${String.fromCharCode(65 + i)})</span>
+                <span lang="de">${escapeHtml(opt)}</span>
+              </button>`).join('')}
+          </div>
+        </div>`;
+      }).join('')}
+      <p class="quiz-hint" id="quiz-progress" aria-live="polite">Respondidas: ${answered} de ${total}</p>
+      <button type="button" class="check-all-btn" data-quiz-evaluate ${answered === total ? '' : 'disabled'}>
+        Entregar evaluación final
+      </button>`;
+  },
+
+  selectQuiz(qId, optIdx) {
+    AppState.userAnswers[qId] = optIdx;
+    AppState.save(); // Autoguardado
+    this.renderContainer();
+    this.calculateProgress();
+  },
+
+  evaluateQuiz() {
+    const pantalla = this.getScreen('quiz');
+    if (!pantalla) return;
+    const preguntas = pantalla.datos.preguntas;
+    const pendientes = preguntas.filter(q => AppState.userAnswers[q.id] === undefined);
+    if (pendientes.length) {
+      const el = document.getElementById('quiz-progress');
+      if (el) { el.style.color = 'var(--burgundy)'; el.textContent = `Faltan ${pendientes.length} pregunta(s) por responder.`; }
+      return;
+    }
+
+    let correct = 0;
+    preguntas.forEach(q => { if (AppState.userAnswers[q.id] === q.correcta) correct++; });
+    const total = preguntas.length;
+    const pct = Math.round((correct / total) * 100);
+
+    const m = LECCION.meta;
+    let title = 'Sigue practicando', icon = '✍️';
+    let msg = m.quizRetryMsg  || 'Repasa la explicación y los ejercicios. Cada error es un paso en el aprendizaje.';
+    if (pct === 100) {
+      title = '¡Perfecto! Dominio absoluto'; icon = '🎉';
+      msg   = m.quizPerfectMsg || 'Completaste la lección sin errores.';
+      triggerConfetti(); // 🎉 Llama al confeti si obtiene 100%
+    } else if (pct >= 70) {
+      title = '¡Excelente trabajo!'; icon = '👏';
+      msg   = m.quizGoodMsg   || 'Buen dominio del contenido. Repasa los errores.';
+    }
+
+    AppState.quizEvaluated = true;
+    AppState.quizResult = { correct, total, pct, title, icon, msg };
+    AppState.save(); // Autoguardado al evaluar
+
+    this.renderContainer();
+    this.calculateProgress();
+  },
+
+  restartQuiz() {
+    AppState.userAnswers  = {};
+    AppState.quizEvaluated = false;
+    AppState.quizResult   = null;
+    AppState.save(); // Autoguardado
+    this.switchScreen('quiz');
+  }
+};
+
+window.addEventListener('load', () => {
+  AudioEngine.init();
+  Renderer.init();
+});
+</script>
+</body>
+</html>
