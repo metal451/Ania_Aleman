@@ -1,0 +1,1143 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>mögen vs. möchten — Interaktive Deutschlektion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- ════════════════════════════════════════════════════════════
+     PLANTILLA IDIOMAS v2.0 — Lección Interactiva Alemán
+     ════════════════════════════════════════════════════════════
+     ZONA FIJA (no modificar):
+       · CSS — design tokens, layout, componentes
+       · HTML estructural — header, sidebar, main
+       · AudioEngine — síntesis de voz con cascada de calidad
+       · AppState — estado de sesión
+       · Renderer — motor de pantallas y eventos
+       · escapeHtml / normalizeAnswer / levenshtein
+
+     ZONA VARIABLE (único bloque a reemplazar):
+       · El objeto LECCION al inicio del <script>
+
+     Para crear una nueva lección:
+       1. Copia este archivo con el nuevo nombre
+       2. Reemplaza únicamente el objeto LECCION
+       3. No toques nada fuera de LECCION
+       4. Los tipos de pantalla disponibles son:
+            'explicacion'  — tarjetas de concepto con audio
+            'conjugacion'  — tabla de paradigma con audio por celda
+            'cloze'        — completar huecos con opciones
+            'produccion'   — traducción libre con validación fuzzy
+            'quiz'         — preguntas de opción múltiple con evaluación
+     ════════════════════════════════════════════════════════════ -->
+
+<style>
+:root {
+  --burgundy: #581825;
+  --burgundy-light: #f5edf0;
+  --burgundy-hover: #401019;
+  --gold: #b38e4a;
+  --gold-light: #fcf9f2;
+  --accent: #2c5e43;
+  --accent-light: #edf5f0;
+  --dark: #222222;
+  --gray: #666666;
+  --gray-mid: #e1e1e1;
+  --gray-light: #f9f9f9;
+  --white: #ffffff;
+  --shadow: 0 4px 20px rgba(88, 24, 37, 0.06);
+  --radius: 12px;
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', sans-serif; color: var(--dark); background-color: #f7f5f2; line-height: 1.6; -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; }
+
+.container { max-width: 1280px; margin: 0 auto; padding: 24px 16px; display: flex; flex-direction: column; gap: 32px; min-height: 100vh; }
+.grid { display: grid; grid-template-columns: 300px 1fr; gap: 32px; align-items: start; }
+@media (max-width: 960px) { .grid { grid-template-columns: 1fr; } }
+
+/* Header + progreso */
+header { background: linear-gradient(135deg, var(--burgundy), var(--burgundy-hover)); padding: 32px 40px; border-radius: var(--radius); color: var(--white); box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15); position: relative; overflow: hidden; }
+header::before { content: ""; position: absolute; top: -50%; right: -20%; width: 400px; height: 400px; background: radial-gradient(circle, rgba(179, 142, 74, 0.2) 0%, transparent 70%); border-radius: 50%; pointer-events: none; }
+.header-inner { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 24px; }
+@media (min-width: 768px) { .header-inner { flex-direction: row; justify-content: space-between; align-items: center; } }
+.header-main { flex: 1; }
+.header-badge { display: inline-block; background: rgba(255, 255, 255, 0.15); color: var(--gold); font-family: 'DM Mono', monospace; font-weight: 500; padding: 6px 16px; border-radius: 30px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1.5px; border: 1px solid rgba(179, 142, 74, 0.3); margin-bottom: 16px; }
+header h1 { font-family: 'DM Serif Display', serif; font-size: clamp(2rem, 5vw, 3rem); font-weight: 400; line-height: 1.1; margin-bottom: 8px; }
+header h1 em { font-style: italic; color: var(--gold); font-weight: 400; }
+header p { color: rgba(255, 255, 255, 0.85); font-size: 1.05rem; max-width: 600px; font-weight: 300; }
+
+.progress-panel { background: rgba(0,0,0,0.2); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.08); border-radius: var(--radius); padding: 16px 20px; min-width: 220px; }
+.progress-label { display: flex; justify-content: space-between; font-family: 'DM Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.7); margin-bottom: 8px; }
+.progress-label strong { color: var(--gold); }
+.progress-track { height: 8px; background: rgba(255,255,255,0.12); border-radius: 99px; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--gold), #e8c47a); border-radius: 99px; transition: width 0.5s ease; width: 0%; }
+.progress-dots { display: flex; justify-content: space-between; margin-top: 10px; gap: 6px; }
+.progress-dot { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.2); transition: var(--transition); flex-shrink: 0; }
+.progress-dot.visited { background: #6fcf97; }
+.progress-dot.current { width: 12px; height: 12px; background: var(--gold); box-shadow: 0 0 0 3px rgba(179, 142, 74, 0.35); }
+
+/* Sidebar */
+.sidebar-stack { display: flex; flex-direction: column; gap: 20px; }
+.sidebar { background: var(--white); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); border: 1px solid rgba(88, 24, 37, 0.05); }
+.nav-title { font-family: 'DM Serif Display', serif; font-size: 1.3rem; color: var(--burgundy); margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid var(--burgundy-light); }
+.nav-menu { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+@media (max-width: 960px) {
+  .nav-menu { flex-direction: row; overflow-x: auto; padding-bottom: 4px; gap: 6px; }
+  .nav-item { flex: 0 0 auto; }
+  .nav-item button { white-space: nowrap; }
+}
+.nav-item button { width: 100%; text-align: left; padding: 12px 16px; background: transparent; border: none; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 0.95rem; color: var(--gray); cursor: pointer; transition: var(--transition); display: flex; align-items: center; gap: 12px; }
+.nav-item button:hover { background: var(--burgundy-light); color: var(--burgundy); }
+.nav-item.active button { background: var(--burgundy); color: var(--white); }
+.nav-icon { font-family: 'DM Mono', monospace; font-weight: bold; font-size: 0.9rem; min-width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; border-radius: 6px; background: var(--burgundy-light); color: var(--burgundy); }
+.nav-item.active .nav-icon { background: var(--gold); color: var(--burgundy); }
+
+.voice-panel { background: linear-gradient(135deg, var(--gold-light), var(--white)); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); border: 1px solid rgba(179, 142, 74, 0.25); }
+.voice-panel h3 { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--dark); margin-bottom: 8px; }
+.voice-panel p { font-size: 0.8rem; color: var(--gray); margin-bottom: 14px; line-height: 1.5; }
+.rate-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.rate-btn { padding: 10px 12px; border-radius: 8px; border: 1.5px solid var(--gray-mid); background: var(--white); font-family: 'DM Sans', sans-serif; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: var(--transition); color: var(--gray); }
+.rate-btn:hover { border-color: var(--gold); }
+.rate-btn.active { background: var(--gold-light); border-color: var(--gold); color: var(--burgundy); box-shadow: 0 0 0 2px rgba(179, 142, 74, 0.2); }
+
+.nav-item button:focus-visible, .option-btn:focus-visible, .btn-audio:focus-visible,
+.prod-action-btn:focus-visible, .check-all-btn:focus-visible, .quiz-option-btn:focus-visible,
+.rate-btn:focus-visible, .btn-secondary:focus-visible {
+  outline: 3px solid var(--gold); outline-offset: 2px;
+}
+
+.main-content { background: var(--white); border-radius: var(--radius); padding: 40px; box-shadow: var(--shadow); border: 1px solid rgba(88, 24, 37, 0.05); min-height: 550px; }
+@media (max-width: 600px) { .main-content { padding: 24px 16px; } }
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.animate-fade { animation: fadeIn 0.4s ease forwards; }
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade { animation: none; }
+  .wave-bar { animation: none !important; height: 12px !important; }
+  .gram-card:hover { transform: none; }
+  .check-all-btn:hover { transform: none; }
+}
+
+.eyebrow { font-family: 'DM Mono', monospace; text-transform: uppercase; font-size: 0.8rem; color: var(--gold); font-weight: 600; letter-spacing: 2px; margin-bottom: 12px; display: inline-block; background: var(--gold-light); padding: 4px 12px; border-radius: 20px; }
+.section-title { font-family: 'DM Serif Display', serif; font-size: clamp(1.8rem, 4vw, 2.4rem); color: var(--burgundy); margin-bottom: 16px; line-height: 1.2; }
+.section-desc { color: var(--gray); font-size: 1.05rem; margin-bottom: 32px; font-weight: 300; max-width: 720px; }
+.section-desc strong { color: var(--burgundy); }
+
+.card-row { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; }
+@media (max-width: 768px) { .card-row { grid-template-columns: 1fr; } }
+.gram-card { border-radius: var(--radius); padding: 24px; background: var(--gray-light); border: 1.5px solid var(--gray-mid); transition: var(--transition); display: flex; flex-direction: column; }
+.gram-card.mogen { border-top: 4px solid var(--gold); }
+.gram-card.mochten { border-top: 4px solid var(--burgundy); }
+.gram-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.06); }
+.card-title { font-family: 'DM Serif Display', serif; font-size: 1.6rem; margin-bottom: 8px; }
+.card-title .verb-main { color: var(--burgundy); }
+.card-sub { font-family: 'DM Mono', monospace; font-size: 0.8rem; color: var(--gray); margin-bottom: 12px; }
+.card-use-badge { display: inline-block; font-size: 0.7rem; padding: 4px 10px; border-radius: 4px; font-family: 'DM Mono', monospace; background: #fff; border: 1px solid var(--gray-mid); margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.5px; }
+.card-points { list-style: none; display: flex; flex-direction: column; gap: 12px; flex: 1; margin-bottom: 16px; }
+.card-points li { font-size: 0.92rem; display: flex; gap: 8px; align-items: flex-start; }
+.card-points li::before { content: "✦"; color: var(--gold); flex-shrink: 0; margin-top: 2px; }
+.card-points strong { font-weight: 600; color: var(--burgundy); }
+.card-points strong.mono { font-family: 'DM Mono', monospace; font-weight: 500; }
+
+.audio-example-box { background: var(--white); border: 1px solid var(--gray-mid); border-radius: 8px; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.example-german { font-weight: 600; color: var(--dark); font-family: 'DM Mono', monospace; font-size: 0.95rem; }
+.example-spanish { font-size: 0.85rem; color: var(--gray); }
+.btn-audio { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; background: var(--burgundy-light); border: none; color: var(--burgundy); cursor: pointer; transition: var(--transition); flex-shrink: 0; }
+.btn-audio:hover { background: var(--burgundy); color: var(--white); }
+.btn-audio.speaking { background: var(--gold); color: var(--white); transform: scale(1.05); }
+.btn-audio svg { width: 16px; height: 16px; }
+
+.table-container { overflow-x: auto; border: 1.5px solid var(--gray-mid); border-radius: var(--radius); margin-bottom: 32px; }
+.table-conjugation { width: 100%; border-collapse: collapse; text-align: left; }
+.table-conjugation thead { background: var(--burgundy); color: var(--white); }
+.table-conjugation th { padding: 14px 16px; font-weight: 600; font-size: 0.85rem; font-family: 'DM Mono', monospace; text-transform: uppercase; letter-spacing: 0.5px; }
+.table-conjugation td { padding: 14px 16px; border-bottom: 1px solid var(--gray-mid); font-size: 0.95rem; }
+.table-conjugation tr:last-child td { border-bottom: none; }
+.table-conjugation tr.row-highlight { background: rgba(179, 142, 74, 0.08); }
+.table-conjugation tr:hover { background-color: var(--gray-light); }
+.pronoun-cell { color: var(--gray); font-size: 0.9rem; }
+.badge-igual { display: inline-block; margin-left: 6px; font-size: 0.65rem; font-family: 'DM Mono', monospace; font-weight: 700; padding: 2px 6px; border-radius: 4px; background: var(--gold-light); color: #917135; letter-spacing: 0.5px; }
+.verb-cell { font-weight: 600; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.verb-cell .german { font-family: 'DM Mono', monospace; color: var(--burgundy); }
+.verb-cell .german.gold { color: var(--gold); }
+
+.cloze-list { display: flex; flex-direction: column; gap: 24px; }
+.cloze-item { background: var(--gray-light); border: 1.5px solid var(--gray-mid); border-radius: var(--radius); padding: 24px; transition: var(--transition); }
+.cloze-header { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 0.85rem; color: var(--gray); flex-wrap: wrap; gap: 8px; }
+.cloze-badge { font-family: 'DM Mono', monospace; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; padding: 3px 8px; border-radius: 4px; background: var(--gray-mid); color: var(--gray); }
+.cloze-item.correct .cloze-badge { background: var(--accent); color: var(--white); }
+.cloze-item.incorrect .cloze-badge { background: #d32f2f; color: var(--white); }
+.cloze-sentence { font-size: 1.15rem; margin-bottom: 16px; font-weight: 500; }
+.cloze-gap { display: inline-block; min-width: 90px; border-bottom: 2px dashed var(--burgundy); color: var(--burgundy); font-weight: 600; font-family: 'DM Mono', monospace; text-align: center; padding: 0 8px; }
+.cloze-options { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.option-btn { background: var(--white); border: 1.5px solid var(--gray-mid); border-radius: 8px; padding: 8px 16px; font-family: 'DM Mono', monospace; font-weight: 500; font-size: 0.9rem; cursor: pointer; transition: var(--transition); }
+.option-btn:hover { border-color: var(--burgundy); background: var(--burgundy-light); color: var(--burgundy); }
+.option-btn.selected { background: var(--burgundy); color: var(--white); border-color: var(--burgundy); }
+.cloze-item.correct { border-color: var(--accent); background: var(--accent-light); box-shadow: 0 0 16px rgba(44, 94, 67, 0.12); }
+.cloze-item.incorrect { border-color: #d32f2f; background: #fdf2f2; }
+.cloze-feedback { margin-top: 14px; padding: 12px 14px; border-radius: 8px; font-size: 0.88rem; display: none; }
+.cloze-item.correct .cloze-feedback.ok { display: block; background: var(--accent-light); border: 1px solid rgba(44, 94, 67, 0.2); color: var(--accent); }
+.cloze-item.incorrect .cloze-feedback.hint { display: block; background: #fdf2f2; border: 1px solid #f5c6c6; color: #b71c1c; }
+.btn-listen { margin-left: auto; padding: 8px 14px; border-radius: 8px; background: var(--burgundy-light); border: none; color: var(--burgundy); font-size: 0.8rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: var(--transition); }
+.btn-listen:hover { background: var(--burgundy); color: var(--white); }
+
+.prod-list { display: flex; flex-direction: column; gap: 24px; }
+.prod-item { background: var(--white); border: 1.5px solid var(--gray-mid); border-radius: var(--radius); padding: 24px; }
+.prod-meta { font-size: 0.75rem; color: var(--gray); font-family: 'DM Mono', monospace; margin-bottom: 8px; }
+.prod-instruction { font-size: 1.05rem; font-weight: 500; margin-bottom: 16px; }
+.prod-input-wrapper { display: flex; gap: 12px; }
+@media (max-width: 600px) { .prod-input-wrapper { flex-direction: column; } }
+.prod-input { flex: 1; padding: 12px 16px; border-radius: 8px; border: 1.5px solid var(--gray-mid); font-family: 'DM Sans', sans-serif; font-size: 1rem; outline: none; transition: var(--transition); }
+.prod-input:focus { border-color: var(--burgundy); box-shadow: 0 0 0 3px var(--burgundy-light); }
+.prod-action-btn { background: var(--burgundy); color: var(--white); border: none; padding: 12px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: var(--transition); white-space: nowrap; }
+.prod-action-btn:hover { background: var(--burgundy-hover); }
+.prod-feedback { margin-top: 14px; padding: 14px; border-radius: 8px; font-size: 0.92rem; display: none; }
+.prod-feedback.visible { display: block; }
+.prod-feedback.empty  { background: #fdf2f2; border: 1px solid #f5c6c6; color: #b71c1c; }
+.prod-feedback.exact  { background: var(--accent-light); border: 1px solid rgba(44,94,67,0.25); color: var(--accent); }
+.prod-feedback.close  { background: var(--gold-light); border: 1px solid rgba(179,142,74,0.3); color: #917135; }
+
+.quiz-block { background: var(--gray-light); padding: 24px; border-radius: var(--radius); border: 1.5px solid var(--gray-mid); margin-bottom: 20px; }
+.quiz-meta { font-family: 'DM Mono', monospace; font-size: 0.75rem; color: var(--gold); font-weight: 600; margin-bottom: 8px; }
+.quiz-question { font-size: 1.05rem; margin-bottom: 16px; color: var(--burgundy); font-weight: 600; }
+.quiz-options { display: flex; flex-direction: column; gap: 10px; }
+.quiz-option-btn { padding: 12px 16px; border-radius: 8px; font-family: 'DM Sans', sans-serif; cursor: pointer; text-align: left; transition: var(--transition); background: var(--white); border: 1.5px solid var(--gray-mid); font-size: 0.95rem; }
+.quiz-option-btn .opt-letter { font-family: 'DM Mono', monospace; font-size: 0.7rem; opacity: 0.5; margin-right: 8px; }
+.quiz-option-btn:hover { border-color: var(--burgundy); background: var(--burgundy-light); }
+.quiz-option-btn.selected { background: var(--burgundy); color: var(--white); border-color: var(--burgundy); }
+.quiz-hint { text-align: center; color: var(--gray); font-size: 0.9rem; margin: 16px 0; }
+.check-all-btn { background: linear-gradient(135deg, var(--gold), #c9a55a); color: var(--white); border: none; border-radius: 30px; padding: 16px 36px; font-size: 1rem; font-family: 'DM Sans', sans-serif; font-weight: 600; cursor: pointer; box-shadow: 0 6px 20px rgba(179, 142, 74, 0.3); transition: var(--transition); display: block; width: 100%; max-width: 400px; margin: 24px auto 0; }
+.check-all-btn:hover:not(:disabled) { transform: translateY(-2px); }
+.check-all-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+.quiz-results { text-align: center; max-width: 520px; margin: 0 auto; padding: 16px 0; }
+.quiz-results-icon { font-size: 3.5rem; margin-bottom: 16px; }
+.quiz-results-stats { display: flex; justify-content: center; gap: 32px; background: var(--gray-light); border-radius: var(--radius); padding: 24px; margin: 24px 0; border: 1px solid var(--gray-mid); }
+.stat-num { font-family: 'DM Serif Display', serif; font-size: 2rem; color: var(--burgundy); display: block; }
+.stat-lbl { font-family: 'DM Mono', monospace; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px; color: var(--gray); }
+.results-actions { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+.btn-secondary { background: var(--gray-light); color: var(--dark); border: 1.5px solid var(--gray-mid); padding: 12px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: var(--transition); }
+.btn-secondary:hover { background: var(--gray-mid); }
+
+.golden-rule { background: linear-gradient(135deg, var(--burgundy-light), var(--gold-light)); border-radius: var(--radius); padding: 24px; border: 1px solid rgba(179, 142, 74, 0.3); display: flex; gap: 16px; align-items: flex-start; margin-top: 8px; }
+.golden-rule-icon { font-size: 1.5rem; flex-shrink: 0; }
+.golden-rule-title { font-weight: 600; color: var(--burgundy); margin-bottom: 6px; }
+.golden-rule-text { color: var(--dark); font-size: 0.95rem; line-height: 1.6; }
+
+.tts-indicator { position: fixed; bottom: 24px; right: 24px; background: var(--dark); color: var(--white); padding: 14px 22px; border-radius: 16px; font-size: 0.85rem; box-shadow: 0 8px 24px rgba(0,0,0,0.25); display: flex; align-items: center; gap: 12px; opacity: 0; transform: translateY(20px); transition: var(--transition); z-index: 1000; pointer-events: none; max-width: 320px; }
+.tts-indicator.active { opacity: 1; transform: translateY(0); }
+.tts-indicator-label { font-family: 'DM Mono', monospace; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px; color: var(--gold); display: block; }
+.tts-indicator-text { font-style: italic; display: block; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 220px; }
+.wave-animation { display: flex; gap: 3px; align-items: flex-end; }
+.wave-bar { width: 3px; height: 12px; background: var(--gold); animation: wave 1s infinite alternate; }
+.wave-bar:nth-child(2) { animation-delay: 0.2s; }
+.wave-bar:nth-child(3) { animation-delay: 0.4s; }
+@keyframes wave { from { height: 4px; } to { height: 16px; } }
+
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header id="app-header" aria-label="Información de la lección"></header>
+
+  <div class="grid">
+    <div class="sidebar-stack">
+      <aside class="sidebar" aria-label="Navegación de secciones">
+        <div class="nav-title">Menú de navegación</div>
+        <ul class="nav-menu" id="app-nav" role="list"></ul>
+      </aside>
+
+      <div class="voice-panel" aria-label="Configuración de audio">
+        <h3>Asistente de voz</h3>
+        <p>Haz clic en cualquier altavoz para escuchar alemán nativo. Ajusta la velocidad para entrenar el oído.</p>
+        <span class="sr-only">Velocidad de audio</span>
+        <div class="rate-grid">
+          <button type="button" class="rate-btn" data-rate="0.7" id="rate-slow">Despacio</button>
+          <button type="button" class="rate-btn active" data-rate="1" id="rate-normal">Normal</button>
+        </div>
+      </div>
+    </div>
+
+    <main class="main-content" id="screen-container" aria-live="polite">
+      <p class="sr-only">Cargando lección…</p>
+    </main>
+  </div>
+</div>
+
+<div class="tts-indicator" id="ttsIndicator" role="status" aria-live="polite" aria-atomic="true" hidden>
+  <div class="wave-animation" aria-hidden="true">
+    <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+  </div>
+  <div>
+    <span class="tts-indicator-label">Pronunciación alemana</span>
+    <span class="tts-indicator-text" id="ttsText">Hör zu…</span>
+  </div>
+</div>
+
+<script>
+const ICON_SPEAKER = '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/></svg>';
+
+/* ════════════════════════════════════════════════════════════
+   ZONA VARIABLE — REEMPLAZAR PARA CADA LECCIÓN
+   No modificar nada fuera de este bloque.
+   ════════════════════════════════════════════════════════════
+
+   Slots obligatorios en meta:
+     nivel      — texto del badge superior (ej. "Alemán A1 · Gramática")
+     titulo     — verbo o concepto principal (ej. "mögen")
+     tituloVs   — segundo término del contraste (ej. "möchten")
+     descripcion — descripción visible en el header
+     lang       — código BCP-47 para síntesis de voz (ej. "de-DE")
+     reglaOro   — resumen mnemónico al pie de Explicación (HTML permitido)
+
+   Slots obligatorios en cada pantalla:
+     id         — identificador único, sin espacios (ej. "ejercicios")
+     navLabel   — etiqueta visible en el menú (ej. "Ejercicios")
+     navIcon    — número del paso (ej. "03")
+     tipo       — uno de los 5 tipos soportados (ver tipos abajo)
+     datos      — objeto con la estructura del tipo (ver tipos abajo)
+
+   Tipos y estructura de datos esperada:
+     'explicacion' → { categoria, titulo, descripcion, tarjetas: [{tipo,verbo,traduccion,insignia,puntos[],ejemplo:{de,es}}] }
+     'conjugacion' → { categoria, titulo, descripcion, tabla: { encabezados[], filas: [{pron,mogen,mochten,igual}] } }
+     'cloze'       → { categoria, titulo, descripcion, items: [{id,contexto,fraseAntes,fraseDespues,opciones[],correcta,pista}] }
+     'produccion'  → { categoria, titulo, descripcion, items: [{id,instruccion,placeholder,solucion}] }
+     'quiz'        → { categoria, titulo, descripcion, preguntas: [{id,pregunta,opciones[],correcta}] }
+   ════════════════════════════════════════════════════════════ */
+const LECCION = {
+  /* Slot 1 — Identidad */
+  meta: {
+    nivel: "Alemán A1 · Ania P6A · Gramática",
+    titulo: "mögen",
+    tituloVs: "möchten",
+    descripcion: "Aprende cuándo decir que algo te gusta y cuándo decir que quieres pedir, tener o hacer algo, usando ejemplos de Naruto, Isabela, dibujo, natación, escalada y helados.",
+    lang: "de-DE",
+    reglaOro: "Usa <strong>mögen</strong> para expresar gustos generales: cosas, personas o actividades que te gustan. Usa <strong>möchten</strong> para expresar un deseo, un pedido o una intención: algo que quieres pedir, tener o hacer."
+  },
+
+  /* Slot 2 — Pantallas (define orden y contenido de las pestañas) */
+  pantallas: [
+    {
+      id: "explicacion",
+      navLabel: "Explicación",
+      navIcon: "01",
+      tipo: "explicacion",
+      datos: {
+        categoria: "Foco gramatical",
+        titulo: "¿Mögen o Möchten?",
+        descripcion: "La diferencia principal no es \u201csiempre\u201d contra \u201cahora\u201d. La diferencia real es: mögen expresa gusto; möchten expresa deseo, pedido o intención.",
+        tarjetas: [
+          {
+            tipo: "mogen",
+            verbo: "mögen",
+            traduccion: "gustar",
+            insignia: "Gusto general",
+            puntos: [
+              "Expresa que algo o alguien te gusta.",
+              "Sirve para hablar de gustos personales: personajes, actividades, personas o cosas.",
+              "No estás pidiendo nada. Solo dices que algo forma parte de tus gustos.",
+              "Ejemplo clave: <strong class=\"mono\">Ich mag Naruto.</strong> (Me gusta Naruto)."
+            ],
+            ejemplo: {
+              de: "Ich mag Naruto.",
+              es: "Me gusta Naruto."
+            }
+          },
+          {
+            tipo: "mochten",
+            verbo: "möchten",
+            traduccion: "querer / quisiera",
+            insignia: "Deseo, pedido o intención",
+            puntos: [
+              "Expresa que quieres pedir, tener o hacer algo.",
+              "Sirve para pedir algo de forma amable.",
+              "También sirve para decir una intención, aunque sea para después o para mañana.",
+              "Ejemplo clave: <strong class=\"mono\">Ich möchte morgen Naruto sehen.</strong> (Quiero ver Naruto mañana)."
+            ],
+            ejemplo: {
+              de: "Ich möchte ein Eis, bitte.",
+              es: "Quisiera un helado, por favor."
+            }
+          }
+        ]
+      }
+    },
+
+    {
+      id: "conjugacion",
+      navLabel: "Conjugación",
+      navIcon: "02",
+      tipo: "conjugacion",
+      datos: {
+        categoria: "Formación de verbos",
+        titulo: "La conjugación del presente",
+        descripcion: "Aprende las formas principales. Fíjate especialmente en <strong>ich</strong> y <strong>er/sie/es</strong>: en ambos verbos tienen la misma forma. Pulsa el altavoz para escuchar.",
+        tabla: {
+          encabezados: ["Persona", "mögen (gustar)", "möchten (querer / quisiera)"],
+          filas: [
+            { pron: "ich (yo)",                    mogen: "mag",   mochten: "möchte",   igual: true  },
+            { pron: "du (tú)",                     mogen: "magst", mochten: "möchtest", igual: false },
+            { pron: "er/sie/es (él/ella/eso)",     mogen: "mag",   mochten: "möchte",   igual: true  },
+            { pron: "wir (nosotros)",               mogen: "mögen", mochten: "möchten",  igual: false },
+            { pron: "ihr (ustedes informal plural)",mogen: "mögt",  mochten: "möchtet",  igual: false },
+            { pron: "sie/Sie (ellos/usted)",        mogen: "mögen", mochten: "möchten",  igual: false }
+          ]
+        }
+      }
+    },
+
+    {
+      id: "ejercicios",
+      navLabel: "Ejercicios",
+      navIcon: "03",
+      tipo: "cloze",
+      datos: {
+        categoria: "Práctica guiada",
+        titulo: "Completa con la forma correcta",
+        descripcion: "Decide si la frase expresa gusto o si expresa deseo, pedido o intención. Recuerda: las palabras heute y morgen pueden ayudar, pero no son la regla.",
+        items: [
+          {
+            id: "cloze_1",
+            contexto: "Naruto es un gusto general de Ania",
+            fraseAntes: "Ich ",
+            fraseDespues: " Naruto.",
+            opciones: ["mag", "möchte", "möchtest"],
+            correcta: "mag",
+            pista: "Naruto es algo que le gusta. No está pidiendo nada. Por eso usamos mögen."
+          },
+          {
+            id: "cloze_2",
+            contexto: "Ania quiere pedir un helado",
+            fraseAntes: "Ich ",
+            fraseDespues: " ein Eis, bitte.",
+            opciones: ["mag", "möchte", "mögen"],
+            correcta: "möchte",
+            pista: "Aquí está pidiendo algo de forma amable. Por eso usamos möchte."
+          },
+          {
+            id: "cloze_3",
+            contexto: "Dibujar es una actividad que le gusta",
+            fraseAntes: "Ich ",
+            fraseDespues: " Zeichnen.",
+            opciones: ["mag", "möchte", "möchtest"],
+            correcta: "mag",
+            pista: "Zeichnen está usado como actividad o gusto. Por eso usamos mögen."
+          },
+          {
+            id: "cloze_4",
+            contexto: "Ania quiere nadar hoy",
+            fraseAntes: "Ich ",
+            fraseDespues: " heute schwimmen.",
+            opciones: ["mag", "möchte", "mögen"],
+            correcta: "möchte",
+            pista: "Quiere hacer algo. Es una intención, no un gusto general."
+          },
+          {
+            id: "cloze_5",
+            contexto: "Isabela también tiene un gusto",
+            fraseAntes: "Isabela ",
+            fraseDespues: " Naruto.",
+            opciones: ["mag", "möchte", "möchten"],
+            correcta: "mag",
+            pista: "Isabela habla de algo que le gusta. Con er/sie usamos mag."
+          },
+          {
+            id: "cloze_6",
+            contexto: "Ania quiere ver Naruto mañana",
+            fraseAntes: "Ich ",
+            fraseDespues: " morgen Naruto sehen.",
+            opciones: ["mag", "möchte", "magst"],
+            correcta: "möchte",
+            pista: "Aunque dice morgen, sigue siendo möchten porque expresa intención."
+          },
+          {
+            id: "cloze_7",
+            contexto: "Escalar es una actividad que le gusta",
+            fraseAntes: "Ich ",
+            fraseDespues: " Klettern.",
+            opciones: ["mag", "möchte", "möchten"],
+            correcta: "mag",
+            pista: "Klettern está usado como actividad o gusto. Por eso usamos mögen."
+          }
+        ]
+      }
+    },
+
+    {
+      id: "produccion",
+      navLabel: "Producción",
+      navIcon: "04",
+      tipo: "produccion",
+      datos: {
+        categoria: "Producción guiada",
+        titulo: "Construye tus propias frases",
+        descripcion: "Traduce estas frases al alemán. El objetivo es practicar la estructura, no memorizar palabras sueltas.",
+        items: [
+          {
+            id: "prod_1",
+            instruccion: "Traduce: 'Me gusta Naruto.'",
+            placeholder: "Escribe aquí tu respuesta…",
+            solucion: "Ich mag Naruto."
+          },
+          {
+            id: "prod_2",
+            instruccion: "Traduce: 'Quiero nadar hoy.'",
+            placeholder: "Escribe aquí tu respuesta…",
+            solucion: "Ich möchte heute schwimmen."
+          },
+          {
+            id: "prod_3",
+            instruccion: "Traduce: 'A Isabela le gusta Naruto.'",
+            placeholder: "Escribe aquí tu respuesta…",
+            solucion: "Isabela mag Naruto."
+          },
+          {
+            id: "prod_4",
+            instruccion: "Traduce: 'Quiero ver Naruto mañana.'",
+            placeholder: "Escribe aquí tu respuesta…",
+            solucion: "Ich möchte morgen Naruto sehen."
+          }
+        ]
+      }
+    },
+
+    {
+      id: "quiz",
+      navLabel: "Evaluación",
+      navIcon: "05",
+      tipo: "quiz",
+      datos: {
+        categoria: "Desafío final",
+        titulo: "Mini quiz de comprensión",
+        descripcion: "Elige la opción correcta. No se trata de memorizar: decide si la frase expresa gusto o deseo, pedido o intención.",
+        preguntas: [
+          {
+            id: "q_1",
+            pregunta: "¿Qué frase expresa un gusto general?",
+            opciones: ["Ich möchte Naruto sehen.", "Ich mag Naruto.", "Ich möchtet Naruto."],
+            correcta: 1
+          },
+          {
+            id: "q_2",
+            pregunta: "¿Qué frase sirve para pedir un helado?",
+            opciones: ["Ich mag ein Eis, bitte.", "Ich möchte ein Eis, bitte.", "Ich mögen ein Eis, bitte."],
+            correcta: 1
+          },
+          {
+            id: "q_3",
+            pregunta: "¿Qué frase expresa una intención para hoy?",
+            opciones: ["Ich möchte heute schwimmen.", "Ich mag heute schwimmen.", "Ich magst heute schwimmen."],
+            correcta: 0
+          },
+          {
+            id: "q_4",
+            pregunta: "¿Qué frase habla de lo que le gusta a Isabela?",
+            opciones: ["Isabela möchte Naruto.", "Isabela mag Naruto.", "Isabela mögen Naruto."],
+            correcta: 1
+          },
+          {
+            id: "q_5",
+            pregunta: "¿Por qué 'Ich möchte morgen Naruto sehen' usa möchten?",
+            opciones: [
+              "Porque Naruto siempre va con möchten.",
+              "Porque expresa una intención, aunque sea para mañana.",
+              "Porque morgen siempre significa mögen."
+            ],
+            correcta: 1
+          }
+        ]
+      }
+    }
+  ]
+}; /* fin LECCION */
+
+
+/* ════════════════════════════════════════════════════════════
+   ZONA FIJA — NO MODIFICAR
+   Todo lo que sigue es infraestructura reutilizable.
+   Modificar este bloque puede romper todas las lecciones.
+   ════════════════════════════════════════════════════════════ */
+
+function escapeHtml(str) {
+  return String(str ?? '')
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+function normalizeAnswer(s) {
+  return String(s).toLowerCase().normalize('NFD').replace(/\p{M}/gu, '')
+    .replace(/ß/g, 'ss').replace(/[^\p{L}\p{N}\s]/gu, '').replace(/\s+/g, ' ').trim();
+}
+
+function buildClozePhrase(item, word) {
+  if (!word) return '';
+  return `${item.fraseAntes.trim()} ${word} ${item.fraseDespues.trim()}`.replace(/\s+/g, ' ');
+}
+
+function levenshtein(a, b) {
+  const m = a.length, n = b.length;
+  const dp = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
+  for (let i = 0; i <= m; i++) dp[i][0] = i;
+  for (let j = 0; j <= n; j++) dp[0][j] = j;
+  for (let i = 1; i <= m; i++)
+    for (let j = 1; j <= n; j++) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      dp[i][j] = Math.min(dp[i - 1][j] + 1, dp[i][j - 1] + 1, dp[i - 1][j - 1] + cost);
+    }
+  return dp[m][n];
+}
+
+function isAnswerCorrect(user, solution) {
+  const a = normalizeAnswer(user), b = normalizeAnswer(solution);
+  if (!a) return false;
+  if (a === b) return true;
+  return levenshtein(a, b) <= 2;
+}
+
+function isSingularRow(pron) {
+  const p = pron.toLowerCase();
+  return p.startsWith('ich') || p.startsWith('er') || p.startsWith('er/');
+}
+
+const AppState = {
+  currentScreenId: null,
+  clozeAnswers: {},
+  prodAnswers: {},
+  userAnswers: {},
+  visitedScreens: new Set(),
+  quizEvaluated: false,
+  quizResult: null       /* { correct, total, pct, title, icon, msg } */
+};
+
+const AudioEngine = {
+  isSpeaking: false,
+  activeButton: null,
+  germanVoices: [],
+  rate: 1,
+
+  init() {
+    const loadVoices = () => {
+      this.germanVoices = (window.speechSynthesis?.getVoices() || [])
+        .filter(v => v.lang?.toLowerCase().startsWith('de'));
+    };
+    loadVoices();
+    if (window.speechSynthesis) speechSynthesis.addEventListener('voiceschanged', loadVoices);
+    this.updateRateUI();
+  },
+
+  setRate(value) {
+    this.rate = value;
+    this.updateRateUI();
+  },
+
+  updateRateUI() {
+    document.querySelectorAll('.rate-btn').forEach(btn => {
+      const v = parseFloat(btn.dataset.rate);
+      btn.classList.toggle('active', v === this.rate);
+    });
+  },
+
+  pickVoice() {
+    const voices = this.germanVoices.length ? this.germanVoices
+      : (window.speechSynthesis?.getVoices() || []).filter(v => v.lang?.toLowerCase().startsWith('de'));
+    const google = voices.find(v => v.name?.toLowerCase().includes('google'));
+    const exact = voices.find(v => v.lang === (LECCION.meta.lang || 'de-DE'));
+    return google || exact || voices[0] || null;
+  },
+
+  stop() {
+    window.speechSynthesis?.cancel();
+    this.isSpeaking = false;
+    if (this.activeButton) this.activeButton.classList.remove('speaking');
+    this.activeButton = null;
+    const ind = document.getElementById('ttsIndicator');
+    ind.classList.remove('active');
+    ind.hidden = true;
+  },
+
+  speak(text, buttonElement = null) {
+    if (!text || !window.speechSynthesis) return;
+    this.stop();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = LECCION.meta.lang || 'de-DE';
+    u.rate = this.rate;
+    const voice = this.pickVoice();
+    if (voice) u.voice = voice;
+    const ind = document.getElementById('ttsIndicator');
+    const ttsText = document.getElementById('ttsText');
+    u.onstart = () => {
+      this.isSpeaking = true;
+      this.activeButton = buttonElement;
+      if (buttonElement) buttonElement.classList.add('speaking');
+      ind.hidden = false;
+      ind.classList.add('active');
+      ttsText.textContent = `"${text}"`;
+    };
+    u.onend = () => this.stop();
+    u.onerror = () => this.stop();
+    window.speechSynthesis.speak(u);
+  }
+};
+
+const Renderer = {
+  eventsBound: false,
+
+  init() {
+    document.title = `${LECCION.meta.titulo} vs. ${LECCION.meta.tituloVs} — Lektion`;
+    this.bindEvents();
+    this.renderHeader();
+    this.renderNav();
+    AppState.visitedScreens.add(LECCION.pantallas[0]?.id);
+    if (LECCION.pantallas.length) this.switchScreen(LECCION.pantallas[0].id);
+  },
+
+  bindEvents() {
+    if (this.eventsBound) return;
+    this.eventsBound = true;
+
+    document.getElementById('app-nav').addEventListener('click', e => {
+      const btn = e.target.closest('[data-screen-id]');
+      if (btn) this.switchScreen(btn.dataset.screenId);
+    });
+
+    document.querySelector('.voice-panel').addEventListener('click', e => {
+      const rateBtn = e.target.closest('[data-rate]');
+      if (rateBtn) AudioEngine.setRate(parseFloat(rateBtn.dataset.rate));
+    });
+
+    const container = document.getElementById('screen-container');
+    container.addEventListener('click', e => {
+      const speakBtn = e.target.closest('[data-speak]');
+      if (speakBtn) { AudioEngine.speak(speakBtn.dataset.speak, speakBtn); return; }
+
+      const clozeBtn = e.target.closest('[data-cloze-id][data-cloze-opt]');
+      if (clozeBtn) { this.selectCloze(clozeBtn.dataset.clozeId, clozeBtn.dataset.clozeOpt); return; }
+
+      const prodBtn = e.target.closest('[data-prod-check]');
+      if (prodBtn) { this.checkProd(prodBtn.dataset.prodCheck, prodBtn.dataset.prodSolution); return; }
+
+      const quizBtn = e.target.closest('[data-quiz-id][data-quiz-opt]');
+      if (quizBtn) { this.selectQuiz(quizBtn.dataset.quizId, Number(quizBtn.dataset.quizOpt)); return; }
+
+      if (e.target.closest('[data-quiz-evaluate]')) this.evaluateQuiz();
+      if (e.target.closest('[data-quiz-restart]')) this.restartQuiz();
+      const backBtn = e.target.closest('.btn-secondary[data-screen-id]');
+      if (backBtn) this.switchScreen(backBtn.dataset.screenId);
+    });
+
+    container.addEventListener('input', e => {
+      const input = e.target.closest('[data-prod-input]');
+      if (input) {
+        AppState.prodAnswers[input.dataset.prodInput] = input.value;
+        this.calculateProgress();
+      }
+    });
+  },
+
+  renderHeader() {
+    const m = LECCION.meta;
+    const screenIds = LECCION.pantallas.map(p => p.id);
+    document.getElementById('app-header').innerHTML = `
+      <div class="header-inner">
+        <div class="header-main">
+          <div class="header-badge">${escapeHtml(m.nivel)}</div>
+          <h1 lang="de">${escapeHtml(m.titulo)} <em>vs.</em> ${escapeHtml(m.tituloVs)}</h1>
+          <p>${escapeHtml(m.descripcion)}</p>
+        </div>
+        <div class="progress-panel" aria-label="Progreso de la lección">
+          <div class="progress-label">
+            <span>Progreso de lección</span>
+            <strong id="progressPercent">0%</strong>
+          </div>
+          <div class="progress-track"><div class="progress-fill" id="progressBar"></div></div>
+          <div class="progress-dots" id="progressDots">
+            ${screenIds.map(id => `<span class="progress-dot" id="prog-dot-${escapeHtml(id)}" title="${escapeHtml(id)}"></span>`).join('')}
+          </div>
+        </div>
+      </div>`;
+  },
+
+  renderNav() {
+    document.getElementById('app-nav').innerHTML = LECCION.pantallas.map(p => `
+      <li class="nav-item" id="nav-${escapeHtml(p.id)}">
+        <button type="button" data-screen-id="${escapeHtml(p.id)}" aria-controls="screen-container">
+          <span class="nav-icon" aria-hidden="true">${escapeHtml(p.navIcon)}</span>
+          ${escapeHtml(p.navLabel)}
+        </button>
+      </li>`).join('');
+  },
+
+  calculateProgress() {
+    const N = LECCION.pantallas.length;
+    if (!N) return;
+
+    /* Completitud de cada pantalla: valor entre 0 y 1
+       derivado del tipo y del estado real del usuario.
+       No hay pesos arbitrarios — cada pantalla vale 1/N. */
+    const completitudDe = p => {
+      switch (p.tipo) {
+
+        case 'explicacion':
+        case 'conjugacion':
+          /* Lectura: visitada = completa */
+          return AppState.visitedScreens.has(p.id) ? 1 : 0;
+
+        case 'cloze': {
+          const items = p.datos.items?.length || 1;
+          const respondidas = p.datos.items?.filter(
+            item => AppState.clozeAnswers[item.id] !== undefined
+          ).length ?? 0;
+          return respondidas / items;
+        }
+
+        case 'produccion': {
+          const items = p.datos.items?.length || 1;
+          const conTexto = p.datos.items?.filter(
+            item => AppState.prodAnswers[item.id]?.trim()
+          ).length ?? 0;
+          return conTexto / items;
+        }
+
+        case 'quiz':
+          /* Si ya fue evaluado: pantalla completa.
+             Si no: fracción de preguntas respondidas. */
+          if (AppState.quizEvaluated) return 1;
+          const preguntas = p.datos.preguntas?.length || 1;
+          const respondidas = p.datos.preguntas?.filter(
+            q => AppState.userAnswers[q.id] !== undefined
+          ).length ?? 0;
+          return respondidas / preguntas;
+
+        default:
+          /* Tipo desconocido: visitada = completa */
+          return AppState.visitedScreens.has(p.id) ? 1 : 0;
+      }
+    };
+
+    const pct = Math.round(
+      LECCION.pantallas.reduce((sum, p) => sum + completitudDe(p), 0) / N * 100
+    );
+
+    const bar   = document.getElementById('progressBar');
+    const label = document.getElementById('progressPercent');
+    if (bar)   bar.style.width   = `${pct}%`;
+    if (label) label.textContent = `${pct}%`;
+
+    LECCION.pantallas.forEach(p => {
+      const dot = document.getElementById(`prog-dot-${p.id}`);
+      if (!dot) return;
+      dot.className = 'progress-dot';
+      if (AppState.currentScreenId === p.id) dot.classList.add('current');
+      else if (AppState.visitedScreens.has(p.id)) dot.classList.add('visited');
+    });
+  },
+
+  switchScreen(screenId) {
+    AudioEngine.stop();
+    AppState.currentScreenId = screenId;
+    AppState.visitedScreens.add(screenId);
+
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.classList.remove('active');
+      item.querySelector('button')?.removeAttribute('aria-current');
+    });
+    const activeNav = document.getElementById(`nav-${screenId}`);
+    if (activeNav) {
+      activeNav.classList.add('active');
+      activeNav.querySelector('button')?.setAttribute('aria-current', 'page');
+    }
+
+    this.renderContainer();
+    this.calculateProgress();
+  },
+
+  getScreen(id) {
+    return LECCION.pantallas.find(p => p.id === id);
+  },
+
+  getCurrentScreen() {
+    return this.getScreen(AppState.currentScreenId);
+  },
+
+  audioBtn(speakText, label) {
+    return `<button type="button" class="btn-audio" data-speak="${escapeHtml(speakText)}" aria-label="${escapeHtml(label)}">${ICON_SPEAKER}</button>`;
+  },
+
+  renderContainer() {
+    const pantalla = this.getCurrentScreen();
+    const container = document.getElementById('screen-container');
+    if (!pantalla) { container.innerHTML = '<p>Pantalla no encontrada.</p>'; return; }
+
+    const templates = {
+      explicacion: () => this.templateExplicacion(pantalla.datos),
+      conjugacion: () => this.templateConjugacion(pantalla.datos),
+      cloze: () => this.templateCloze(pantalla.datos),
+      produccion: () => this.templateProduccion(pantalla.datos),
+      quiz: () => this.templateQuiz(pantalla.datos)
+    };
+    const html = (templates[pantalla.tipo] || (() => '<p>Tipo no soportado.</p>'))();
+    container.innerHTML = `<div class="animate-fade">${html}</div>`;
+  },
+
+  templateExplicacion(d) {
+    const regla = LECCION.meta.reglaOro;
+    return `
+      <div class="eyebrow">${escapeHtml(d.categoria)}</div>
+      <h2 class="section-title">${escapeHtml(d.titulo)}</h2>
+      <p class="section-desc">${escapeHtml(d.descripcion)}</p>
+      <div class="card-row">
+        ${d.tarjetas.map(t => `
+          <div class="gram-card ${escapeHtml(t.tipo)}">
+            <div class="card-title"><span class="verb-main" lang="de">${escapeHtml(t.verbo)}</span></div>
+            <p class="card-sub">${escapeHtml(t.traduccion)}</p>
+            <span class="card-use-badge">${escapeHtml(t.insignia)}</span>
+            <ul class="card-points">${t.puntos.map(p => `<li>${p}</li>`).join('')}</ul>
+            <div class="audio-example-box">
+              <div>
+                <p style="font-size:0.7rem;font-family:'DM Mono',monospace;color:var(--gray);text-transform:uppercase;margin-bottom:4px;">Ejemplo</p>
+                <div class="example-german" lang="de">${escapeHtml(t.ejemplo.de)}</div>
+                <div class="example-spanish">${escapeHtml(t.ejemplo.es)}</div>
+              </div>
+              ${this.audioBtn(t.ejemplo.de, 'Reproducir ejemplo')}
+            </div>
+          </div>`).join('')}
+      </div>
+      ${regla ? `
+      <div class="golden-rule">
+        <span class="golden-rule-icon" aria-hidden="true">🔑</span>
+        <div>
+          <p class="golden-rule-title">La regla de oro</p>
+          <p class="golden-rule-text">${regla}</p>
+        </div>
+      </div>` : ''}`;
+  },
+
+  templateConjugacion(d) {
+    return `
+      <div class="eyebrow">${escapeHtml(d.categoria)}</div>
+      <h2 class="section-title">${escapeHtml(d.titulo)}</h2>
+      <p class="section-desc">${d.descripcion}</p>
+      <div class="table-container">
+        <table class="table-conjugation">
+          <thead><tr>${d.tabla.encabezados.map(h => `<th scope="col">${escapeHtml(h)}</th>`).join('')}</tr></thead>
+          <tbody>
+            ${d.tabla.filas.map(f => {
+              const highlight = f.igual || isSingularRow(f.pron);
+              const speakBase = f.pron.replace(/\s*\(.*\)/, '').trim();
+              const speakM = `${speakBase} ${f.mogen}`;
+              const speakMc = `${speakBase} ${f.mochten}`;
+              return `
+              <tr class="${highlight ? 'row-highlight' : ''}">
+                <td class="pronoun-cell">${escapeHtml(f.pron)}${f.igual ? '<span class="badge-igual">¡IGUALES!</span>' : ''}</td>
+                <td><div class="verb-cell"><span class="german" lang="de">${escapeHtml(f.mogen)}</span>${this.audioBtn(speakM, 'Pronunciar ' + f.mogen)}</div></td>
+                <td><div class="verb-cell"><span class="german gold" lang="de">${escapeHtml(f.mochten)}</span>${this.audioBtn(speakMc, 'Pronunciar ' + f.mochten)}</div></td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>`;
+  },
+
+  templateCloze(d) {
+    return `
+      <div class="eyebrow">${escapeHtml(d.categoria)}</div>
+      <h2 class="section-title">${escapeHtml(d.titulo)}</h2>
+      <p class="section-desc">${escapeHtml(d.descripcion)}</p>
+      <div class="cloze-list">
+        ${d.items.map((item, idx) => {
+          const selected = AppState.clozeAnswers[item.id] ?? null;
+          const ok = selected === item.correcta;
+          const cardClass = selected ? (ok ? 'correct' : 'incorrect') : '';
+          const badge = !selected ? 'Pendiente' : ok ? '✓ Correcto' : '✗ Reintentar';
+          const audioPhrase = selected ? buildClozePhrase(item, selected) : '';
+          return `
+          <div class="cloze-item ${cardClass}">
+            <div class="cloze-header">
+              <span>Enunciado ${idx + 1} · ${escapeHtml(item.contexto)}</span>
+              <span class="cloze-badge">${badge}</span>
+            </div>
+            <p class="cloze-sentence" lang="de">
+              ${escapeHtml(item.fraseAntes)}<span class="cloze-gap">${escapeHtml(selected || '______')}</span>${escapeHtml(item.fraseDespues)}
+            </p>
+            <div class="cloze-options">
+              ${item.opciones.map(opt => `
+                <button type="button" class="option-btn ${selected === opt ? 'selected' : ''}"
+                  data-cloze-id="${escapeHtml(item.id)}" data-cloze-opt="${escapeHtml(opt)}"
+                  aria-pressed="${selected === opt}">${escapeHtml(opt)}</button>`).join('')}
+              ${audioPhrase ? `<button type="button" class="btn-listen" data-speak="${escapeHtml(audioPhrase)}" aria-label="Escuchar frase">Escuchar frase</button>` : ''}
+            </div>
+            <div class="cloze-feedback ok" role="status">⭐ <strong>Excelente:</strong> ${escapeHtml(item.pista)}</div>
+            <div class="cloze-feedback hint" role="status">💡 <strong>Pista:</strong> ${escapeHtml(item.pista)}</div>
+          </div>`;
+        }).join('')}
+      </div>`;
+  },
+
+  selectCloze(itemId, option) {
+    AppState.clozeAnswers[itemId] = option;
+    this.renderContainer();
+    this.calculateProgress();
+  },
+
+  templateProduccion(d) {
+    return `
+      <div class="eyebrow">${escapeHtml(d.categoria)}</div>
+      <h2 class="section-title">${escapeHtml(d.titulo)}</h2>
+      <p class="section-desc">${escapeHtml(d.descripcion)}</p>
+      <div class="prod-list">
+        ${d.items.map((item, idx) => {
+          const val = AppState.prodAnswers[item.id] || '';
+          return `
+          <div class="prod-item">
+            <p class="prod-meta">Ejercicio ${idx + 1} · Composición</p>
+            <p class="prod-instruction">${escapeHtml(item.instruccion)}</p>
+            <div class="prod-input-wrapper">
+              <input type="text" id="${escapeHtml(item.id)}" class="prod-input"
+                data-prod-input="${escapeHtml(item.id)}" placeholder="${escapeHtml(item.placeholder)}"
+                value="${escapeHtml(val)}" autocomplete="off" lang="de"
+                aria-describedby="feedback-${escapeHtml(item.id)}" />
+              <button type="button" class="prod-action-btn"
+                data-prod-check="${escapeHtml(item.id)}" data-prod-solution="${escapeHtml(item.solucion)}">
+                Validar y escuchar
+              </button>
+            </div>
+            <div id="feedback-${escapeHtml(item.id)}" class="prod-feedback" role="status"></div>
+          </div>`;
+        }).join('')}
+      </div>`;
+  },
+
+  checkProd(itemId, solution) {
+    const input = document.getElementById(itemId);
+    const fb = document.getElementById(`feedback-${itemId}`);
+    const val = (input?.value || '').trim();
+
+    fb.className = 'prod-feedback visible';
+
+    if (!val) {
+      fb.classList.add('empty');
+      fb.textContent = '⚠️ Escribe una respuesta antes de validar.';
+      return;
+    }
+
+    const exact = normalizeAnswer(val) === normalizeAnswer(solution);
+    const close = !exact && isAnswerCorrect(val, solution);
+
+    if (exact) {
+      fb.classList.add('exact');
+      fb.innerHTML = `⭐ <strong>¡Excepcional!</strong> Frase: <em lang="de">${escapeHtml(solution)}</em>`;
+    } else if (close) {
+      fb.classList.add('close');
+      fb.innerHTML = `👍 Casi correcto. Tu respuesta: <em>${escapeHtml(val)}</em><br>Solución: <strong lang="de">${escapeHtml(solution)}</strong>`;
+    } else {
+      fb.classList.add('close');
+      fb.innerHTML = `💡 Estás cerca. Tu respuesta: <em>${escapeHtml(val)}</em><br>Solución sugerida: <strong lang="de">${escapeHtml(solution)}</strong>`;
+    }
+    AudioEngine.speak(solution);
+    this.calculateProgress();
+  },
+
+  templateQuiz(d) {
+    /* Si el quiz ya fue evaluado, mostrar pantalla de resultados */
+    if (AppState.quizEvaluated && AppState.quizResult) {
+      const r = AppState.quizResult;
+      return `
+        <div class="animate-fade quiz-results">
+          <div class="quiz-results-icon" aria-hidden="true">${r.icon}</div>
+          <h2 class="section-title">${escapeHtml(r.title)}</h2>
+          <p class="section-desc" style="margin:0 auto 8px;">${escapeHtml(r.msg)}</p>
+          <div class="quiz-results-stats">
+            <div><span class="stat-num">${r.correct}/${r.total}</span><span class="stat-lbl">Puntaje</span></div>
+            <div><span class="stat-num">${r.pct}%</span><span class="stat-lbl">Eficiencia</span></div>
+          </div>
+          <div class="results-actions">
+            <button type="button" class="prod-action-btn" data-quiz-restart>Reintentar evaluación</button>
+            <button type="button" class="btn-secondary" data-screen-id="${escapeHtml(LECCION.pantallas[0].id)}">Volver al inicio</button>
+          </div>
+        </div>`;
+    }
+
+    const answered = d.preguntas.filter(q => AppState.userAnswers[q.id] !== undefined).length;
+    const total = d.preguntas.length;
+    return `
+      <div class="eyebrow">${escapeHtml(d.categoria)}</div>
+      <h2 class="section-title">${escapeHtml(d.titulo)}</h2>
+      <p class="section-desc">${escapeHtml(d.descripcion)}</p>
+      ${d.preguntas.map((q, idx) => {
+        const sel = AppState.userAnswers[q.id];
+        return `
+        <div class="quiz-block">
+          <p class="quiz-meta">Pregunta ${idx + 1} de ${total}</p>
+          <h3 class="quiz-question">${escapeHtml(q.pregunta)}</h3>
+          <div class="quiz-options" role="group" aria-label="${escapeHtml(q.pregunta)}">
+            ${q.opciones.map((opt, i) => `
+              <button type="button" class="quiz-option-btn ${sel === i ? 'selected' : ''}"
+                data-quiz-id="${escapeHtml(q.id)}" data-quiz-opt="${i}" aria-pressed="${sel === i}">
+                <span class="opt-letter">${String.fromCharCode(65 + i)})</span>
+                <span lang="de">${escapeHtml(opt)}</span>
+              </button>`).join('')}
+          </div>
+        </div>`;
+      }).join('')}
+      <p class="quiz-hint" id="quiz-progress" aria-live="polite">Respondidas: ${answered} de ${total}</p>
+      <button type="button" class="check-all-btn" data-quiz-evaluate ${answered === total ? '' : 'disabled'}>
+        Entregar evaluación final
+      </button>`;
+  },
+
+  selectQuiz(qId, optIdx) {
+    AppState.userAnswers[qId] = optIdx;
+    this.renderContainer();
+    this.calculateProgress();
+  },
+
+  evaluateQuiz() {
+    const pantalla = this.getScreen('quiz');
+    if (!pantalla) return;
+    const preguntas = pantalla.datos.preguntas;
+    const pendientes = preguntas.filter(q => AppState.userAnswers[q.id] === undefined);
+    if (pendientes.length) {
+      const el = document.getElementById('quiz-progress');
+      if (el) { el.style.color = 'var(--burgundy)'; el.textContent = `Faltan ${pendientes.length} pregunta(s) por responder.`; }
+      return;
+    }
+
+    let correct = 0;
+    preguntas.forEach(q => { if (AppState.userAnswers[q.id] === q.correcta) correct++; });
+    const total = preguntas.length;
+    const pct = Math.round((correct / total) * 100);
+
+    let title = 'Sigue practicando', icon = '✍️', msg = 'Repasa la conjugación y los ejemplos. Cada error es un paso en el aprendizaje.';
+    if (pct === 100) { title = '¡Perfecto! Dominio absoluto'; icon = '🎉'; msg = 'Completaste la lección sin errores. Listo para usar mögen y möchten en conversación.'; }
+    else if (pct >= 70) { title = '¡Excelente trabajo!'; icon = '👏'; msg = 'Conocimiento sólido de verbos de preferencia y cortesía.'; }
+
+    /* Guardar resultado en AppState — renderContainer lo leerá */
+    AppState.quizEvaluated = true;
+    AppState.quizResult = { correct, total, pct, title, icon, msg };
+
+    this.renderContainer();
+    this.calculateProgress();
+  },
+
+  restartQuiz() {
+    AppState.userAnswers  = {};
+    AppState.quizEvaluated = false;
+    AppState.quizResult   = null;
+    this.switchScreen('quiz');
+  }
+};
+
+window.addEventListener('load', () => {
+  AudioEngine.init();
+  Renderer.init();
+});
+</script>
+</body>
+</html>
