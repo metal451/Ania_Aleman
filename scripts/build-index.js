@@ -17,11 +17,11 @@ concurrency:
 
 jobs:
   build-and-deploy:
+    runs-on: ubuntu-latest
+
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-
-    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
@@ -38,15 +38,17 @@ jobs:
       - name: Generate index.html
         run: node scripts/build-index.js
 
-      - name: Save generated index in the repository
+      - name: Save generated index in repository
         run: |
           if git diff --quiet -- index.html; then
             echo "index.html is already up to date."
           else
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
             git add index.html
             git commit -m "Auto-update lesson index [skip ci]"
+            git pull origin main --rebase
             git push origin main
           fi
 
