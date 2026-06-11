@@ -4,9 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Lecciones de Alemán — Ania</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<meta name="description" content="Lecciones interactivas de alemán para Ania.">
+<link rel="preconnect" href="[https://fonts.googleapis.com](https://fonts.googleapis.com)">
+<link rel="preconnect" href="[https://fonts.gstatic.com](https://fonts.gstatic.com)" crossorigin>
+<link href="[https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap](https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap)" rel="stylesheet">
 <style>
 :root {
   --burgundy: #581825;
@@ -18,10 +19,15 @@
   --gray-mid: #e1e1e1;
   --gray-light: #f9f9f9;
   --white: #ffffff;
-  --accent: #2c5e43;
   --radius: 14px;
 }
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
 body {
   font-family: 'DM Sans', sans-serif;
   background: #f7f5f2;
@@ -29,8 +35,17 @@ body {
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
 }
-.page { max-width: 760px; margin: 0 auto; padding: 48px 20px 80px; }
-header { margin-bottom: 56px; }
+
+.page {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 48px 20px 80px;
+}
+
+header {
+  margin-bottom: 56px;
+}
+
 .badge {
   display: inline-block;
   font-family: 'DM Mono', monospace;
@@ -40,11 +55,12 @@ header { margin-bottom: 56px; }
   letter-spacing: 2px;
   color: var(--gold);
   background: var(--gold-light);
-  border: 1px solid rgba(179,142,74,0.25);
+  border: 1px solid rgba(179, 142, 74, 0.25);
   padding: 5px 14px;
   border-radius: 30px;
   margin-bottom: 20px;
 }
+
 h1 {
   font-family: 'DM Serif Display', serif;
   font-size: clamp(2.4rem, 6vw, 3.6rem);
@@ -53,7 +69,12 @@ h1 {
   color: var(--burgundy);
   margin-bottom: 14px;
 }
-h1 em { font-style: italic; color: var(--gold); }
+
+h1 em {
+  font-style: italic;
+  color: var(--gold);
+}
+
 .subtitle {
   font-size: 1.05rem;
   color: var(--gray);
@@ -61,21 +82,36 @@ h1 em { font-style: italic; color: var(--gold); }
   max-width: 500px;
   line-height: 1.65;
 }
+
 .divider {
   height: 2px;
   background: linear-gradient(90deg, var(--burgundy), transparent);
   margin: 40px 0;
   border-radius: 2px;
 }
-.section-label {
+
+.section-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.section-label, .lesson-count {
   font-family: 'DM Mono', monospace;
   font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 2px;
   color: var(--gray);
-  margin-bottom: 20px;
 }
-.lessons { display: flex; flex-direction: column; gap: 14px; }
+
+.lessons {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
 .lesson-card {
   display: flex;
   align-items: center;
@@ -86,26 +122,34 @@ h1 em { font-style: italic; color: var(--gold); }
   padding: 22px 24px;
   text-decoration: none;
   color: inherit;
-  transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
 }
+
 .lesson-card::before {
   content: '';
   position: absolute;
-  left: 0; top: 0; bottom: 0;
+  left: 0;
+  top: 0;
+  bottom: 0;
   width: 4px;
   background: var(--gold);
   border-radius: 0 2px 2px 0;
   transform: scaleY(0);
   transition: transform 0.25s ease;
 }
+
 .lesson-card:hover {
   border-color: var(--burgundy);
-  box-shadow: 0 6px 24px rgba(88,24,37,0.08);
+  box-shadow: 0 6px 24px rgba(88, 24, 37, 0.08);
   transform: translateX(4px);
 }
-.lesson-card:hover::before { transform: scaleY(1); }
+
+.lesson-card:hover::before {
+  transform: scaleY(1);
+}
+
 .lesson-num {
   font-family: 'DM Serif Display', serif;
   font-size: 2rem;
@@ -114,30 +158,54 @@ h1 em { font-style: italic; color: var(--gold); }
   line-height: 1;
   transition: color 0.25s;
 }
-.lesson-card:hover .lesson-num { color: var(--gold); }
-.lesson-body { flex: 1; }
+
+.lesson-card:hover .lesson-num {
+  color: var(--gold);
+}
+
+.lesson-body {
+  flex: 1;
+  min-width: 0;
+}
+
 .lesson-title {
   font-family: 'DM Serif Display', serif;
   font-size: 1.25rem;
   color: var(--burgundy);
   margin-bottom: 4px;
 }
-.lesson-title em { font-style: italic; color: var(--gold); }
+
+.lesson-title em {
+  font-style: italic;
+  color: var(--gold);
+}
+
 .lesson-desc {
   font-size: 0.88rem;
   color: var(--gray);
   font-weight: 300;
   line-height: 1.5;
 }
+
 .lesson-arrow {
   font-size: 1.1rem;
   color: var(--gray-mid);
   transition: color 0.25s, transform 0.25s;
 }
+
 .lesson-card:hover .lesson-arrow {
   color: var(--burgundy);
   transform: translateX(4px);
 }
+
+.empty {
+  background: var(--white);
+  border: 1.5px dashed var(--gray-mid);
+  border-radius: var(--radius);
+  padding: 24px;
+  color: var(--gray);
+}
+
 footer {
   margin-top: 64px;
   padding-top: 24px;
@@ -146,6 +214,33 @@ footer {
   font-size: 0.72rem;
   color: var(--gray);
   letter-spacing: 0.5px;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 560px) {
+  .page {
+    padding-top: 32px;
+  }
+  header {
+    margin-bottom: 40px;
+  }
+  .lesson-card {
+    padding: 18px 16px;
+    gap: 14px;
+  }
+  .lesson-num {
+    font-size: 1.65rem;
+    min-width: 34px;
+  }
+  .lesson-title {
+    font-size: 1.1rem;
+  }
+  .lesson-arrow {
+    display: none;
+  }
 }
 </style>
 </head>
@@ -156,49 +251,97 @@ footer {
     <h1>Lecciones<br>de <em>Alemán</em></h1>
     <p class="subtitle">Microlecciones para corregir falencias específicas. Cada tarjeta abre una lección interactiva con audio y ejercicios.</p>
   </header>
-
   <div class="divider"></div>
-  <p class="section-label">Lecciones disponibles</p>
-
+  <div class="section-row">
+    <p class="section-label">Lecciones disponibles</p>
+    <p class="lesson-count">5 en total</p>
+  </div>
   <div class="lessons">
-        <a class="lesson-card" href="ania_moegen_mochten_v2.html">
-      <span class="lesson-num">01</span>
-      <div class="lesson-body">
-        <div class="lesson-title"><em>mögen</em> vs. <em>möchten</em></div>
-        <div class="lesson-desc">Gusto real vs. deseo cortés. Conjugación, ejercicios y quiz.</div>
-      </div>
-      <span class="lesson-arrow">→</span>
-    </a>
+    
+<a class="lesson-card" href="ania_moegen_mochten_v2.html">
+  <span class="lesson-num">01</span>
 
-    <a class="lesson-card" href="ania_darf_durft_leccion2.html">
-      <span class="lesson-num">02</span>
-      <div class="lesson-body">
-        <div class="lesson-title"><em>darf</em> vs. <em>dürft</em></div>
-        <div class="lesson-desc">Una persona con permiso vs. un grupo al que hablas. Falencia 2.</div>
-      </div>
-      <span class="lesson-arrow">→</span>
-    </a>
+  <div class="lesson-body">
+    <div class="lesson-title">
+      <em>mögen</em> vs. <em>möchten</em>
+    </div>
 
-    <a class="lesson-card" href="leccion3_mejorada.html">
-      <span class="lesson-num">03</span>
-      <div class="lesson-body">
-        <div class="lesson-title"><em>müssen</em> · <em>sollen</em> · <em>dürfen</em></div>
-        <div class="lesson-desc">El examen de Kakashi: necesidad, voz de otro y permiso.</div>
-      </div>
-      <span class="lesson-arrow">→</span>
-    </a>
-
-    <a class="lesson-card" href="semana1_lunes_mein_zimmer.html">
-      <span class="lesson-num">04</span>
-      <div class="lesson-body">
-        <div class="lesson-title"><em>Mein Zimmer</em> und <em>meine Schulsachen</em></div>
-        <div class="lesson-desc">Semana 1 · Lunes. Cuarto, mochila, cuaderno de Naruto, bloc de dibujo y regla mein/meine.</div>
-      </div>
-      <span class="lesson-arrow">→</span>
-    </a>
+    <div class="lesson-desc">
+      Gusto real vs. deseo cortés. Conjugación, ejercicios y quiz.
+    </div>
   </div>
 
-  <footer>metal451.github.io/Ania_Aleman · 2026</footer>
+  <span class="lesson-arrow" aria-hidden="true">→</span>
+</a>
+
+<a class="lesson-card" href="ania_darf_durft_leccion2.html">
+  <span class="lesson-num">02</span>
+
+  <div class="lesson-body">
+    <div class="lesson-title">
+      <em>darf</em> vs. <em>dürft</em>
+    </div>
+
+    <div class="lesson-desc">
+      Una persona con permiso vs. un grupo al que hablas. Falencia 2.
+    </div>
+  </div>
+
+  <span class="lesson-arrow" aria-hidden="true">→</span>
+</a>
+
+<a class="lesson-card" href="leccion3_mejorada.html">
+  <span class="lesson-num">03</span>
+
+  <div class="lesson-body">
+    <div class="lesson-title">
+      <em>müssen</em> · <em>sollen</em> · <em>dürfen</em>
+    </div>
+
+    <div class="lesson-desc">
+      El examen de Kakashi: necesidad, voz de otro y permiso.
+    </div>
+  </div>
+
+  <span class="lesson-arrow" aria-hidden="true">→</span>
+</a>
+
+<a class="lesson-card" href="semana1_lunes_mein_zimmer.html">
+  <span class="lesson-num">04</span>
+
+  <div class="lesson-body">
+    <div class="lesson-title">
+      <em>Mein Zimmer</em> und <em>meine Schulsachen</em>
+    </div>
+
+    <div class="lesson-desc">
+      Semana 1 · Lunes. Cuarto, mochila, cuaderno de Naruto, bloc de dibujo y regla mein/meine.
+    </div>
+  </div>
+
+  <span class="lesson-arrow" aria-hidden="true">→</span>
+</a>
+
+<a class="lesson-card" href="lecciones/leccionVomega1.html">
+  <span class="lesson-num">05</span>
+
+  <div class="lesson-body">
+    <div class="lesson-title">
+      müssen · sollen · dürfen — Interaktive Deutschlektion
+    </div>
+
+    <div class="lesson-desc">
+      Lección interactiva de alemán con audio y ejercicios.
+    </div>
+  </div>
+
+  <span class="lesson-arrow" aria-hidden="true">→</span>
+</a>
+  </div>
+  <footer>
+    <span>metal451.github.io/Ania_Aleman · 2026</span>
+    <span>Índice automático · 11/06/2026</span>
+  </footer>
 </div>
 </body>
 </html>
