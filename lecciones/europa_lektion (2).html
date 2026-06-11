@@ -1,0 +1,2538 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Europa — Interaktive Deutschlektion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  var(--app-bg): #f7f5f2;
+  --burgundy: #581825;
+  --burgundy-light: #f5edf0;
+  --burgundy-hover: #401019;
+  --gold: #b38e4a;
+  --gold-light: #fcf9f2;
+  --accent: #2c5e43;
+  --accent-light: #edf5f0;
+  --dark: #222222;
+  --gray: #666666;
+  --gray-mid: #e1e1e1;
+  --gray-light: #f9f9f9;
+  --white: #ffffff;
+  --header-text: #ffffff;
+  --shadow: 0 4px 20px rgba(88, 24, 37, 0.06);
+  --radius: 12px;
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-theme="dark"] {
+  --app-bg: #121212;
+  --white: #1e1e1e;
+  --dark: #e4e4e4;
+  --gray: #a1a1a1;
+  --gray-mid: #333333;
+  --gray-light: #252525;
+  --burgundy: #b84157;
+  --burgundy-light: #3a131c;
+  --burgundy-hover: #d2536b;
+  --gold: #dca74e;
+  --gold-light: #382d16;
+  --accent: #42ad71;
+  --accent-light: #1a3c27;
+  --header-text: #ffffff;
+  --shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', sans-serif; color: var(--dark); background-color: var(--app-bg); line-height: 1.6; -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; transition: background-color 0.3s ease; }
+
+.container { max-width: 1280px; margin: 0 auto; padding: 24px 16px; display: flex; flex-direction: column; gap: 32px; min-height: 100vh; }
+.grid { display: grid; grid-template-columns: 300px 1fr; gap: 32px; align-items: start; }
+@media (max-width: 960px) { .grid { grid-template-columns: 1fr; } }
+
+header { background: linear-gradient(135deg, #581825, #401019); padding: 32px 40px; border-radius: var(--radius); color: var(--header-text); box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15); position: relative; overflow: hidden; }
+header::before { content: ""; position: absolute; top: -50%; right: -20%; width: 400px; height: 400px; background: radial-gradient(circle, rgba(179, 142, 74, 0.25) 0%, transparent 70%); border-radius: 50%; pointer-events: none; }
+.header-inner { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 24px; }
+@media (min-width: 768px) { .header-inner { flex-direction: row; justify-content: space-between; align-items: center; } }
+.header-main { flex: 1; }
+.header-badge { display: inline-block; background: rgba(255, 255, 255, 0.15); color: #e8c47a; font-family: 'DM Mono', monospace; font-weight: 500; padding: 6px 16px; border-radius: 30px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1.5px; border: 1px solid rgba(179, 142, 74, 0.3); margin-bottom: 16px; }
+header h1 { font-family: 'DM Serif Display', serif; font-size: var(--h1-size, 2.5rem); font-weight: 400; line-height: 1.1; margin-bottom: 8px; }
+header h1 em { font-style: italic; color: #e8c47a; font-weight: 400; }
+header p { color: rgba(255, 255, 255, 0.85); font-size: 1.05rem; max-width: 600px; font-weight: 300; }
+
+.progress-panel { background: rgba(0,0,0,0.2); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.08); border-radius: var(--radius); padding: 16px 20px; min-width: 220px; }
+.progress-label { display: flex; justify-content: space-between; font-family: 'DM Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.7); margin-bottom: 8px; }
+.progress-label strong { color: #e8c47a; }
+.progress-track { height: 8px; background: rgba(255,255,255,0.12); border-radius: 99px; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, #b38e4a, #e8c47a); border-radius: 99px; transition: width 0.5s ease; width: 0%; }
+.progress-dots { display: flex; justify-content: space-between; margin-top: 10px; gap: 6px; }
+.progress-dot { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.2); transition: var(--transition); flex-shrink: 0; }
+.progress-dot.visited { background: #6fcf97; }
+.progress-dot.current { width: 12px; height: 12px; background: #e8c47a; box-shadow: 0 0 0 3px rgba(179, 142, 74, 0.35); }
+
+.sidebar-stack { display: flex; flex-direction: column; gap: 20px; }
+.sidebar { background: var(--white); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); border: 1px solid var(--gray-mid); transition: background-color 0.3s ease, border-color 0.3s ease; }
+.nav-title { font-family: 'DM Serif Display', serif; font-size: 1.3rem; color: var(--burgundy); margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid var(--burgundy-light); transition: color 0.3s ease; }
+.nav-menu { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+@media (max-width: 960px) {
+  .nav-menu { flex-direction: row; overflow-x: auto; padding-bottom: 4px; gap: 6px; }
+  .nav-item { flex: 0 0 auto; }
+  .nav-item button { white-space: nowrap; }
+}
+.nav-item button { width: 100%; text-align: left; padding: 12px 16px; background: transparent; border: none; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 0.95rem; color: var(--gray); cursor: pointer; transition: var(--transition); display: flex; align-items: center; gap: 12px; }
+.nav-item button:hover { background: var(--burgundy-light); color: var(--burgundy); }
+.nav-item.active button { background: var(--burgundy); color: #ffffff; }
+.nav-icon { font-family: 'DM Mono', monospace; font-weight: bold; font-size: 0.9rem; min-width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; border-radius: 6px; background: var(--burgundy-light); color: var(--burgundy); transition: var(--transition); }
+.nav-item.active .nav-icon { background: var(--gold); color: #ffffff; }
+
+.voice-panel { background: var(--white); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); border: 1px solid var(--gray-mid); transition: background-color 0.3s ease, border-color 0.3s ease; }
+.voice-panel h3 { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--dark); margin-bottom: 8px; }
+.voice-panel p { font-size: 0.8rem; color: var(--gray); margin-bottom: 14px; line-height: 1.5; }
+.rate-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.rate-btn { padding: 10px 12px; border-radius: 8px; border: 1.5px solid var(--gray-mid); background: var(--white); font-family: 'DM Sans', sans-serif; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: var(--transition); color: var(--gray); }
+.rate-btn:hover { border-color: var(--gold); }
+.rate-btn.active { background: var(--gold-light); border-color: var(--gold); color: var(--burgundy); }
+#reset-progress { color: #d32f2f; }
+#reset-progress:hover { background: #fdf2f2; border-color: #d32f2f; }
+[data-theme="dark"] #reset-progress:hover { background: #3a1616; border-color: #f48fb1; color: #f48fb1; }
+
+.nav-item button:focus-visible, .option-btn:focus-visible, .btn-audio:focus-visible,
+.prod-action-btn:focus-visible, .check-all-btn:focus-visible, .quiz-option-btn:focus-visible,
+.rate-btn:focus-visible, .btn-secondary:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+
+.main-content { background: var(--white); border-radius: var(--radius); padding: 40px; box-shadow: var(--shadow); border: 1px solid var(--gray-mid); min-height: 550px; transition: background-color 0.3s ease, border-color 0.3s ease; }
+@media (max-width: 600px) { .main-content { padding: 24px 16px; } }
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.animate-fade { animation: fadeIn 0.4s ease forwards; }
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade { animation: none; }
+  .wave-bar { animation: none !important; height: 12px !important; }
+  .gram-card:hover { transform: none; }
+  .check-all-btn:hover { transform: none; }
+}
+
+.eyebrow { font-family: 'DM Mono', monospace; text-transform: uppercase; font-size: 0.8rem; color: var(--gold); font-weight: 600; letter-spacing: 2px; margin-bottom: 12px; display: inline-block; background: var(--gold-light); padding: 4px 12px; border-radius: 20px; border: 1px solid rgba(179, 142, 74, 0.2); }
+.section-title { font-family: 'DM Serif Display', serif; font-size: clamp(1.8rem, 4vw, 2.4rem); color: var(--burgundy); margin-bottom: 16px; line-height: 1.2; }
+.section-desc { color: var(--gray); font-size: 1.05rem; margin-bottom: 32px; font-weight: 300; max-width: 720px; }
+.section-desc strong { color: var(--burgundy); }
+
+.card-row { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; }
+@media (max-width: 768px) { .card-row { grid-template-columns: 1fr; } }
+.gram-card { border-radius: var(--radius); padding: 24px; background: var(--gray-light); border: 1.5px solid var(--gray-mid); transition: var(--transition); display: flex; flex-direction: column; }
+.gram-card.mogen { border-top: 4px solid var(--gold); }
+.gram-card.mochten { border-top: 4px solid var(--burgundy); }
+.gram-card.permiso { border-top: 4px solid var(--accent, #2a7a4b); }
+.gram-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); border-color: var(--gold); }
+.card-title { font-family: 'DM Serif Display', serif; font-size: 1.6rem; margin-bottom: 8px; }
+.card-title .verb-main { color: var(--burgundy); }
+.card-sub { font-family: 'DM Mono', monospace; font-size: 0.8rem; color: var(--gray); margin-bottom: 12px; }
+.card-use-badge { display: inline-block; font-size: 0.7rem; padding: 4px 10px; border-radius: 4px; font-family: 'DM Mono', monospace; background: var(--white); border: 1px solid var(--gray-mid); margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--dark); }
+.card-points { list-style: none; display: flex; flex-direction: column; gap: 12px; flex: 1; margin-bottom: 16px; color: var(--dark); }
+.card-points li { font-size: 0.92rem; display: flex; gap: 8px; align-items: flex-start; }
+.card-points li::before { content: "✦"; color: var(--gold); flex-shrink: 0; margin-top: 2px; }
+.card-points strong { font-weight: 600; color: var(--burgundy); }
+.card-points strong.mono { font-family: 'DM Mono', monospace; font-weight: 500; }
+
+.audio-example-box { background: var(--white); border: 1px solid var(--gray-mid); border-radius: 8px; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.example-german { font-weight: 600; color: var(--dark); font-family: 'DM Mono', monospace; font-size: 0.95rem; }
+.example-spanish { font-size: 0.85rem; color: var(--gray); }
+.btn-audio { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; background: var(--burgundy-light); border: none; color: var(--burgundy); cursor: pointer; transition: var(--transition); flex-shrink: 0; }
+.btn-audio:hover { background: var(--burgundy); color: #ffffff; }
+.btn-audio.speaking { background: var(--gold); color: #ffffff; transform: scale(1.05); }
+.btn-audio svg { width: 16px; height: 16px; }
+
+.table-container { overflow-x: auto; border: 1.5px solid var(--gray-mid); border-radius: var(--radius); margin-bottom: 32px; background: var(--white); }
+.table-conjugation { width: 100%; border-collapse: collapse; text-align: left; }
+.table-conjugation thead { background: var(--burgundy-light); color: var(--burgundy); }
+.table-conjugation th { padding: 14px 16px; font-weight: 600; font-size: 0.85rem; font-family: 'DM Mono', monospace; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid var(--gray-mid); }
+.table-conjugation td { padding: 14px 16px; border-bottom: 1px solid var(--gray-mid); font-size: 0.95rem; }
+.table-conjugation tr:last-child td { border-bottom: none; }
+.table-conjugation tr.row-highlight { background: var(--gold-light); }
+.table-conjugation tr:hover { background-color: var(--gray-light); }
+.pronoun-cell { color: var(--dark); font-size: 0.92rem; font-weight: 500; }
+.pron-sub { display: block; font-size: 0.75rem; color: var(--gray); font-weight: 300; margin-top: 2px; }
+.badge-igual { display: inline-block; margin-left: 6px; font-size: 0.65rem; font-family: 'DM Mono', monospace; font-weight: 700; padding: 2px 6px; border-radius: 4px; background: rgba(179, 142, 74, 0.2); color: var(--gold); letter-spacing: 0.5px; }
+.verb-cell { font-weight: 600; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.verb-cell .german { font-family: 'DM Mono', monospace; color: var(--burgundy); }
+.verb-cell .german.gold { color: var(--gold); }
+
+.cloze-list { display: flex; flex-direction: column; gap: 24px; }
+.cloze-item { background: var(--gray-light); border: 1.5px solid var(--gray-mid); border-radius: var(--radius); padding: 24px; transition: var(--transition); }
+.cloze-header { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 0.85rem; color: var(--gray); flex-wrap: wrap; gap: 8px; }
+.cloze-badge { font-family: 'DM Mono', monospace; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; padding: 3px 8px; border-radius: 4px; background: var(--gray-mid); color: var(--dark); }
+.cloze-item.correct .cloze-badge { background: var(--accent); color: #ffffff; }
+.cloze-item.incorrect .cloze-badge { background: #d32f2f; color: #ffffff; }
+.cloze-sentence { font-size: 1.15rem; margin-bottom: 16px; font-weight: 500; color: var(--dark); }
+.cloze-gap { display: inline-block; min-width: 90px; border-bottom: 2px dashed var(--burgundy); color: var(--burgundy); font-weight: 600; font-family: 'DM Mono', monospace; text-align: center; padding: 0 8px; }
+.cloze-options { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.option-btn { background: var(--white); border: 1.5px solid var(--gray-mid); border-radius: 8px; padding: 8px 16px; font-family: 'DM Mono', monospace; font-weight: 500; font-size: 0.9rem; cursor: pointer; transition: var(--transition); color: var(--dark); }
+.option-btn:hover { border-color: var(--burgundy); background: var(--burgundy-light); color: var(--burgundy); }
+.option-btn.selected { background: var(--burgundy); color: #ffffff; border-color: var(--burgundy); }
+.cloze-item.correct { border-color: var(--accent); background: var(--accent-light); box-shadow: 0 0 16px rgba(44, 94, 67, 0.12); }
+.cloze-item.incorrect { border-color: #d32f2f; background: rgba(211, 47, 47, 0.05); }
+.cloze-feedback { margin-top: 14px; padding: 12px 14px; border-radius: 8px; font-size: 0.88rem; display: none; }
+.cloze-item.correct .cloze-feedback.ok { display: block; background: rgba(44, 94, 67, 0.1); border: 1px solid rgba(44, 94, 67, 0.3); color: var(--accent); }
+.cloze-item.incorrect .cloze-feedback.hint { display: block; background: rgba(211, 47, 47, 0.1); border: 1px solid rgba(211, 47, 47, 0.3); color: #e53935; }
+.btn-listen { margin-left: auto; padding: 8px 14px; border-radius: 8px; background: var(--burgundy-light); border: none; color: var(--burgundy); font-size: 0.8rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: var(--transition); }
+.btn-listen:hover { background: var(--burgundy); color: #ffffff; }
+
+.prod-list { display: flex; flex-direction: column; gap: 24px; }
+.prod-item { background: var(--white); border: 1.5px solid var(--gray-mid); border-radius: var(--radius); padding: 24px; }
+.prod-meta { font-size: 0.75rem; color: var(--gray); font-family: 'DM Mono', monospace; margin-bottom: 8px; }
+.prod-instruction { font-size: 1.05rem; font-weight: 500; margin-bottom: 16px; color: var(--dark); }
+.prod-input-wrapper { display: flex; gap: 12px; }
+@media (max-width: 600px) { .prod-input-wrapper { flex-direction: column; } }
+.prod-input { flex: 1; padding: 12px 16px; border-radius: 8px; border: 1.5px solid var(--gray-mid); font-family: 'DM Sans', sans-serif; font-size: 1rem; outline: none; transition: var(--transition); background: var(--gray-light); color: var(--dark); }
+.prod-input:focus { border-color: var(--burgundy); box-shadow: 0 0 0 3px var(--burgundy-light); background: var(--white); }
+.prod-action-btn { background: var(--burgundy); color: #ffffff; border: none; padding: 12px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: var(--transition); white-space: nowrap; }
+.prod-action-btn:hover { background: var(--burgundy-hover); }
+.prod-feedback { margin-top: 14px; padding: 14px; border-radius: 8px; font-size: 0.92rem; display: none; }
+.prod-feedback.visible { display: block; }
+.prod-feedback.empty  { background: rgba(211, 47, 47, 0.1); border: 1px solid rgba(211, 47, 47, 0.3); color: #e53935; }
+.prod-feedback.exact  { background: rgba(44, 94, 67, 0.1); border: 1px solid rgba(44, 94, 67, 0.3); color: var(--accent); }
+.prod-feedback.close  { background: rgba(179, 142, 74, 0.1); border: 1px solid rgba(179, 142, 74, 0.3); color: var(--gold); }
+.prod-feedback.wrong  { background: rgba(211, 47, 47, 0.1); border: 1px solid rgba(211, 47, 47, 0.3); color: #e53935; }
+
+.quiz-block { background: var(--gray-light); padding: 24px; border-radius: var(--radius); border: 1.5px solid var(--gray-mid); margin-bottom: 20px; }
+.quiz-meta { font-family: 'DM Mono', monospace; font-size: 0.75rem; color: var(--gold); font-weight: 600; margin-bottom: 8px; }
+.quiz-question { font-size: 1.05rem; margin-bottom: 16px; color: var(--burgundy); font-weight: 600; }
+.quiz-options { display: flex; flex-direction: column; gap: 10px; }
+.quiz-option-btn { padding: 12px 16px; border-radius: 8px; font-family: 'DM Sans', sans-serif; cursor: pointer; text-align: left; transition: var(--transition); background: var(--white); border: 1.5px solid var(--gray-mid); font-size: 0.95rem; color: var(--dark); }
+.quiz-option-btn .opt-letter { font-family: 'DM Mono', monospace; font-size: 0.7rem; opacity: 0.6; margin-right: 8px; }
+.quiz-option-btn:hover { border-color: var(--burgundy); background: var(--burgundy-light); }
+.quiz-option-btn.selected { background: var(--burgundy); color: #ffffff; border-color: var(--burgundy); }
+.quiz-option-btn.selected .opt-letter { opacity: 0.8; }
+.quiz-hint { text-align: center; color: var(--gray); font-size: 0.9rem; margin: 16px 0; }
+.check-all-btn { background: linear-gradient(135deg, var(--gold), #c9a55a); color: #ffffff; border: none; border-radius: 30px; padding: 16px 36px; font-size: 1rem; font-family: 'DM Sans', sans-serif; font-weight: 600; cursor: pointer; box-shadow: 0 6px 20px rgba(179, 142, 74, 0.3); transition: var(--transition); display: block; width: 100%; max-width: 400px; margin: 24px auto 0; }
+.check-all-btn:hover:not(:disabled) { transform: translateY(-2px); }
+.check-all-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; filter: grayscale(1); }
+
+.quiz-results { text-align: center; max-width: 520px; margin: 0 auto; padding: 16px 0; }
+.quiz-results-icon { font-size: 3.5rem; margin-bottom: 16px; }
+.quiz-results-stats { display: flex; justify-content: center; gap: 32px; background: var(--gray-light); border-radius: var(--radius); padding: 24px; margin: 24px 0; border: 1px solid var(--gray-mid); }
+.stat-num { font-family: 'DM Serif Display', serif; font-size: 2rem; color: var(--burgundy); display: block; }
+.stat-lbl { font-family: 'DM Mono', monospace; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px; color: var(--gray); }
+.results-actions { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+.btn-secondary { background: var(--gray-light); color: var(--dark); border: 1.5px solid var(--gray-mid); padding: 12px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: var(--transition); }
+.btn-secondary:hover { background: var(--gray-mid); }
+
+.golden-rule { background: var(--burgundy-light); border-radius: var(--radius); padding: 24px; border: 1px solid rgba(179, 142, 74, 0.3); display: flex; gap: 16px; align-items: flex-start; margin-top: 8px; }
+.golden-rule-icon { font-size: 1.5rem; flex-shrink: 0; }
+.golden-rule-title { font-weight: 600; color: var(--burgundy); margin-bottom: 6px; }
+.golden-rule-text { color: var(--dark); font-size: 0.95rem; line-height: 1.6; }
+
+.tts-indicator { position: fixed; bottom: 24px; right: 24px; background: #222222; color: #ffffff; padding: 14px 22px; border-radius: 16px; font-size: 0.85rem; box-shadow: 0 8px 24px rgba(0,0,0,0.3); display: flex; align-items: center; gap: 12px; opacity: 0; transform: translateY(20px); transition: var(--transition); z-index: 1000; pointer-events: none; max-width: 320px; }
+.tts-indicator.active { opacity: 1; transform: translateY(0); }
+.tts-indicator-label { font-family: 'DM Mono', monospace; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px; color: #e8c47a; display: block; }
+.tts-indicator-text { font-style: italic; display: block; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 220px; }
+.wave-animation { display: flex; gap: 3px; align-items: flex-end; }
+.wave-bar { width: 3px; height: 12px; background: #e8c47a; animation: wave 1s infinite alternate; }
+.wave-bar:nth-child(2) { animation-delay: 0.2s; }
+.wave-bar:nth-child(3) { animation-delay: 0.4s; }
+@keyframes wave { from { height: 4px; } to { height: 16px; } }
+
+.confetti-piece { position: fixed; z-index: 9999; pointer-events: none; top: -20px; }
+
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+
+.lesson-img-wrap { width: 100%; border-radius: var(--radius); overflow: hidden; border: 1.5px solid var(--gray-mid); margin-bottom: 24px; background: var(--gray-light); }
+.lesson-img-wrap img { width: 100%; max-height: 340px; object-fit: cover; display: block; cursor: zoom-in; transition: filter 0.2s ease; }
+.lesson-img-wrap img:hover { filter: brightness(0.95); }
+
+.lightbox-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(18, 18, 18, 0.92); display: flex; align-items: center; justify-content: center; z-index: 99999; opacity: 0; pointer-events: none; transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
+.lightbox-overlay.active { opacity: 1; pointer-events: auto; }
+.lightbox-content { max-width: 92%; max-height: 85%; border-radius: 12px; box-shadow: 0 12px 40px rgba(0,0,0,0.6); transform: scale(0.96); transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
+.lightbox-overlay.active .lightbox-content { transform: scale(1); }
+.lightbox-close { position: absolute; top: 24px; right: 32px; color: #fff; font-size: 38px; font-weight: 300; cursor: pointer; user-select: none; transition: color 0.2s, transform 0.2s; }
+.lightbox-close:hover { color: var(--gold, #e8c47a); transform: scale(1.1); }
+
+.story-page { display: flex; flex-direction: column; gap: 24px; }
+.story-img-wrap { width: 100%; border-radius: var(--radius); overflow: hidden; border: 1.5px solid var(--gray-mid); background: var(--gray-light); }
+.story-img-wrap img { width: 100%; max-height: 340px; object-fit: cover; display: block; }
+.story-text-block { display: flex; flex-direction: column; gap: 16px; }
+.story-text { font-family: 'DM Serif Display', serif; font-size: clamp(1.1rem, 2.5vw, 1.3rem); color: var(--black); line-height: 1.75; }
+.story-audio-row { display: flex; align-items: center; gap: 12px; }
+
+.dictado-item { margin-bottom: 20px; }
+.dictado-prompt { font-size: 0.95rem; color: var(--gray); margin-bottom: 10px; font-style: italic; }
+.dictado-play-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.dictado-play-btn { display: flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 24px; border: 1.5px solid var(--burgundy); background: var(--white); color: var(--burgundy); font-family: 'DM Mono', monospace; font-size: 0.88rem; font-weight: 600; cursor: pointer; transition: var(--transition); }
+.dictado-play-btn:hover { background: var(--burgundy-light); }
+.dictado-play-btn.speaking { background: var(--burgundy); color: var(--white); }
+.dictado-input-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
+.dictado-input { flex: 1; min-width: 180px; padding: 10px 14px; border-radius: 8px; border: 1.5px solid var(--gray-mid); font-family: 'DM Sans', sans-serif; font-size: 1rem; outline: none; transition: var(--transition); background: var(--gray-light); color: var(--dark); }
+.dictado-input:focus { border-color: var(--burgundy); box-shadow: 0 0 0 3px var(--burgundy-light); background: var(--white); }
+.dictado-input:disabled { opacity: 0.7; cursor: not-allowed; }
+.dictado-feedback { font-size: 0.9rem; padding: 10px 14px; border-radius: 8px; display: none; }
+.dictado-feedback.visible { display: block; }
+.dictado-feedback.exact  { background: rgba(44,94,67,0.1); border: 1px solid rgba(44,94,67,0.3); color: var(--accent); }
+.dictado-feedback.close  { background: rgba(179,142,74,0.1); border: 1px solid rgba(179,142,74,0.3); color: var(--gold); }
+.dictado-feedback.wrong  { background: rgba(211,47,47,0.08); border: 1px solid rgba(211,47,47,0.3); color: #e53935; }
+
+.match-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+@media (max-width: 480px) { .match-grid { grid-template-columns: 1fr; } }
+.match-col { display: flex; flex-direction: column; gap: 8px; }
+.match-col-label { font-family: 'DM Mono', monospace; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--gray); margin-bottom: 4px; }
+.match-btn { width: 100%; padding: 10px 14px; border-radius: 8px; border: 1.5px solid var(--gray-mid); background: var(--white); color: var(--dark); font-family: 'DM Sans', sans-serif; font-size: 0.95rem; text-align: left; cursor: pointer; transition: var(--transition); }
+.match-btn:hover:not(:disabled) { border-color: var(--burgundy); color: var(--burgundy); }
+.match-btn.selected { border-color: var(--burgundy); background: var(--burgundy-light); color: var(--burgundy); font-weight: 600; }
+.match-btn.matched  { border-color: var(--accent); background: rgba(44,94,67,0.08); color: var(--accent); cursor: default; font-weight: 600; }
+.match-btn.wrong    { border-color: #d32f2f; background: rgba(211,47,47,0.07); color: #d32f2f; }
+.match-btn.matched-neutral { border-color: var(--gold); background: var(--gold-light); color: var(--burgundy); cursor: default; font-weight: 600; }
+.match-btn:disabled { opacity: 0.6; cursor: default; }
+.match-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
+.match-feedback { font-size: 0.9rem; padding: 10px 14px; border-radius: 8px; display: none; }
+.match-feedback.visible { display: block; }
+.match-feedback.all-matched { background: rgba(44,94,67,0.1); border: 1px solid rgba(44,94,67,0.3); color: var(--accent); }
+.match-feedback.partial     { background: rgba(179,142,74,0.1); border: 1px solid rgba(179,142,74,0.3); color: var(--gold); }
+
+.fc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; margin-bottom: 12px; }
+.flashcard { height: 110px; perspective: 800px; cursor: pointer; }
+.fc-inner { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform 0.35s cubic-bezier(0.4,0,0.2,1); }
+.flashcard.flipped .fc-inner { transform: rotateY(180deg); }
+.fc-front, .fc-back { position: absolute; inset: 0; border-radius: 10px; border: 1.5px solid var(--gray-mid); display: flex; align-items: center; justify-content: center; padding: 12px; text-align: center; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.fc-front { background: var(--white); color: var(--dark); font-family: 'DM Serif Display', serif; font-size: 1.1rem; }
+.fc-back  { background: var(--burgundy-light); border-color: var(--burgundy); color: var(--burgundy); font-size: 0.92rem; transform: rotateY(180deg); font-weight: 500; }
+.flashcard.seen .fc-front { border-color: var(--accent); background: rgba(44,94,67,0.05); }
+.fc-hint { font-size: 0.72rem; color: var(--gray); text-align: center; margin-top: 6px; font-style: italic; }
+.fc-progress { font-size: 0.82rem; color: var(--gray); margin-bottom: 10px; font-family: 'DM Mono', monospace; }
+
+.dnd-wrap { display: flex; flex-direction: column; gap: 20px; }
+.dnd-bank-label, .dnd-zones-label { font-family: 'DM Mono', monospace; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--gray); margin-bottom: 8px; }
+.dnd-bank { display: flex; flex-wrap: wrap; gap: 8px; min-height: 48px; padding: 10px; border: 1.5px dashed var(--gray-mid); border-radius: 8px; background: var(--gray-light); }
+.dnd-zones { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+.dnd-zone { min-height: 90px; border: 1.5px solid var(--gray-mid); border-radius: 8px; padding: 10px; background: var(--white); display: flex; flex-direction: column; gap: 6px; transition: var(--transition); }
+.dnd-zone.drag-over { border-color: var(--burgundy); background: var(--burgundy-light); }
+.dnd-zone-label { font-size: 0.78rem; font-weight: 700; color: var(--burgundy); font-family: 'DM Mono', monospace; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+.dnd-item { padding: 6px 12px; border-radius: 20px; border: 1.5px solid var(--gray-mid); background: var(--white); color: var(--dark); font-size: 0.9rem; cursor: grab; user-select: none; touch-action: none; transition: box-shadow 0.15s, opacity 0.15s; display: inline-block; }
+.dnd-item:active { cursor: grabbing; }
+.dnd-item.dragging { opacity: 0.4; }
+.dnd-item.correct  { border-color: var(--accent); background: rgba(44,94,67,0.09); color: var(--accent); cursor: default; font-weight: 600; }
+.dnd-item.incorrect{ border-color: #d32f2f; background: rgba(211,47,47,0.07); color: #d32f2f; }
+.dnd-item.dnd-locked-neutral { border-color: var(--gold); background: var(--gold-light); color: var(--burgundy); cursor: default; }
+.dnd-clone { position: fixed; pointer-events: none; z-index: 9999; opacity: 0.92; box-shadow: 0 8px 24px rgba(0,0,0,0.18); transform: rotate(2deg); }
+.dnd-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.dnd-feedback { font-size: 0.9rem; padding: 10px 14px; border-radius: 8px; display: none; }
+.dnd-feedback.visible { display: block; }
+.dnd-feedback.all-correct { background: rgba(44,94,67,0.1); border: 1px solid rgba(44,94,67,0.3); color: var(--accent); }
+.dnd-feedback.partial     { background: rgba(179,142,74,0.1); border: 1px solid rgba(179,142,74,0.3); color: var(--gold); }
+
+.exam-mode-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(139,0,0,0.1); border: 1.5px solid var(--burgundy); color: var(--burgundy); font-family: 'DM Mono', monospace; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; padding: 4px 14px; border-radius: 20px; margin-bottom: 16px; }
+.exam-input { flex: 1; min-width: 140px; padding: 10px 14px; border-radius: 8px; border: 1.5px solid var(--gray-mid); font-family: 'DM Sans', sans-serif; font-size: 1rem; outline: none; transition: var(--transition); background: var(--gray-light); color: var(--dark); }
+.exam-input:focus { border-color: var(--burgundy); box-shadow: 0 0 0 3px var(--burgundy-light); background: var(--white); }
+.exam-input:disabled { opacity: 0.7; cursor: not-allowed; }
+.exam-item { background: var(--white); border: 1.5px solid var(--gray-mid); border-radius: var(--radius); padding: 18px 20px; margin-bottom: 14px; }
+.exam-item-label { font-size: 0.95rem; color: var(--dark); margin-bottom: 10px; font-weight: 500; }
+.exam-item-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.exam-item-hint { font-size: 0.78rem; color: var(--gray); font-style: italic; margin-top: 6px; }
+.exam-item.correcto  { border-color: var(--accent); background: rgba(44,94,67,0.05); }
+.exam-item.incorrecto{ border-color: #d32f2f; background: rgba(211,47,47,0.04); }
+.exam-result-tag { font-family: 'DM Mono', monospace; font-size: 0.75rem; font-weight: 700; padding: 2px 10px; border-radius: 12px; margin-left: 8px; }
+.exam-result-tag.ok  { background: rgba(44,94,67,0.15); color: var(--accent); }
+.exam-result-tag.err { background: rgba(211,47,47,0.12); color: #d32f2f; }
+.exam-solution { font-size: 0.85rem; color: var(--accent); margin-top: 6px; display: none; }
+.exam-item.incorrecto .exam-solution { display: block; }
+
+.img-form-img-wrap { width: 100%; border-radius: var(--radius); overflow: hidden; border: 1.5px solid var(--gray-mid); margin-bottom: 20px; cursor: zoom-in; }
+.img-form-img-wrap img { width: 100%; display: block; transition: filter 0.2s; }
+.img-form-img-wrap img:hover { filter: brightness(0.95); }
+.img-form-table { width: 100%; border-collapse: collapse; }
+.img-form-table th { font-family: 'DM Mono', monospace; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1px; color: var(--gray); padding: 6px 10px; border-bottom: 1.5px solid var(--gray-mid); text-align: left; }
+.img-form-table td { padding: 8px 10px; border-bottom: 1px solid var(--gray-light); vertical-align: middle; }
+.img-form-table tr:last-child td { border-bottom: none; }
+.img-form-nr { font-family: 'DM Mono', monospace; font-size: 0.8rem; font-weight: 700; color: var(--gold); width: 32px; }
+
+.abgeben-wrap { max-width: 560px; margin: 0 auto; text-align: center; padding: 20px 0; }
+.abgeben-status { display: flex; justify-content: center; gap: 32px; margin: 28px 0; flex-wrap: wrap; }
+.abgaben-stat { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.abgaben-stat-num { font-family: 'DM Serif Display', serif; font-size: 2.4rem; color: var(--burgundy); line-height: 1; }
+.abgaben-stat-label { font-family: 'DM Mono', monospace; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--gray); }
+.abgaben-warn { background: rgba(179,142,74,0.1); border: 1.5px solid var(--gold); border-radius: 10px; padding: 14px 18px; font-size: 0.9rem; color: var(--dark); margin-bottom: 24px; }
+.abgaben-result { background: var(--white); border: 1.5px solid var(--gray-mid); border-radius: var(--radius); padding: 24px; margin-top: 24px; text-align: left; }
+.abgaben-result-title { font-family: 'DM Serif Display', serif; font-size: 1.6rem; color: var(--burgundy); margin-bottom: 16px; }
+.abgaben-score { font-size: 3rem; font-family: 'DM Serif Display', serif; color: var(--burgundy); text-align: center; margin: 16px 0; }
+.abgaben-score span { font-size: 1.2rem; color: var(--gray); }
+.btn-abgeben { width: 100%; padding: 16px; border-radius: 12px; border: none; background: var(--burgundy); color: var(--white); font-family: 'DM Sans', sans-serif; font-size: 1.1rem; font-weight: 700; cursor: pointer; transition: var(--transition); letter-spacing: 0.5px; }
+.btn-abgeben:hover { background: #6b0012; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(139,0,0,0.25); }
+.btn-abgeben:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+.practice-stack { display: flex; flex-direction: column; gap: 28px; }
+.practice-block { background: var(--white); border: 1.5px solid var(--gray-mid); border-radius: var(--radius); padding: 24px; }
+.practice-block-title { font-family: 'DM Mono', monospace; font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--gold); margin-bottom: 16px; }
+
+.sort-item { margin-bottom: 20px; }
+.sort-prompt { font-size: 1.05rem; font-weight: 500; color: var(--dark); margin-bottom: 12px; }
+.sort-bank { display: flex; flex-wrap: wrap; gap: 8px; min-height: 44px; padding: 10px; border: 1.5px dashed var(--gray-mid); border-radius: 8px; background: var(--gray-light); margin-bottom: 10px; }
+.sort-target { display: flex; flex-wrap: wrap; gap: 8px; min-height: 44px; padding: 10px; border: 1.5px solid var(--burgundy); border-radius: 8px; background: var(--white); margin-bottom: 12px; }
+.sort-word { padding: 6px 14px; border-radius: 20px; border: 1.5px solid var(--gray-mid); background: var(--white); color: var(--dark); font-family: 'DM Mono', monospace; font-size: 0.92rem; cursor: pointer; transition: var(--transition); user-select: none; }
+.sort-word:hover { border-color: var(--burgundy); color: var(--burgundy); }
+.sort-word.in-target { background: var(--burgundy-light); border-color: var(--burgundy); color: var(--burgundy); font-weight: 600; }
+.sort-word.correct { background: rgba(44,94,67,0.1); border-color: var(--accent); color: var(--accent); cursor: default; }
+.sort-word.incorrect { background: rgba(211,47,47,0.08); border-color: #d32f2f; color: #d32f2f; cursor: default; }
+.sort-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
+.sort-feedback { font-size: 0.9rem; padding: 10px 14px; border-radius: 8px; display: none; }
+.sort-feedback.visible { display: block; }
+.sort-feedback.exact  { background: rgba(44,94,67,0.1); border: 1px solid rgba(44,94,67,0.3); color: var(--accent); }
+.sort-feedback.wrong  { background: rgba(211,47,47,0.08); border: 1px solid rgba(211,47,47,0.3); color: #e53935; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header id="app-header" aria-label="Información de la lección"></header>
+
+  <div class="grid">
+    <div class="sidebar-stack">
+      <aside class="sidebar" aria-label="Navegación de secciones">
+        <div class="nav-title">Menú de navegación</div>
+        <ul class="nav-menu" id="app-nav" role="list"></ul>
+      </aside>
+
+      <div class="voice-panel" aria-label="Ajustes de la aplicación">
+        <h3>Ajustes</h3>
+        <p>Ajusta el modo visual, la velocidad del audio o reinicia tu progreso.</p>
+        <div class="rate-grid" style="margin-bottom: 12px;">
+          <button type="button" class="rate-btn" data-rate="0.7" id="rate-slow">Audio Lento</button>
+          <button type="button" class="rate-btn active" data-rate="1" id="rate-normal">Audio Normal</button>
+        </div>
+        <div class="rate-grid">
+          <button type="button" class="rate-btn" id="theme-toggle">🌙 Modo Oscuro</button>
+          <button type="button" class="rate-btn" id="reset-progress">🗑️ Reiniciar</button>
+        </div>
+      </div>
+    </div>
+
+    <main class="main-content" id="screen-container" aria-live="polite">
+      <p class="sr-only">Cargando lección…</p>
+    </main>
+  </div>
+</div>
+
+<div class="tts-indicator" id="ttsIndicator" role="status" aria-live="polite" aria-atomic="true" hidden>
+  <div class="wave-animation" aria-hidden="true">
+    <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+  </div>
+  <div>
+    <span class="tts-indicator-label">Pronunciación alemana</span>
+    <span class="tts-indicator-text" id="ttsText">Hör zu…</span>
+  </div>
+</div>
+
+<div id="custom-lightbox" class="lightbox-overlay" aria-hidden="true">
+  <span class="lightbox-close" role="button" aria-label="Cerrar imagen">&times;</span>
+  <img class="lightbox-content" id="lightbox-target-img" src="" alt="Visualización ampliada">
+</div>
+
+<script>
+const ICON_SPEAKER = '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/></svg>';
+
+const LECCION = {
+  meta: {
+    schema:  "LECCION_V1_0",
+    id:      "ania_p6a_europa_geografie",
+    version: "1.0.0",
+    badge:   "Geschichte / Geografie P6 · Ania",
+    titulo:  "Europa",
+    descripcion: "Examen über Europa, die EU, die Eurozone und europäische Länder.",
+    lang:    "de-DE",
+    reglaOro: "<strong>Europa</strong> = Kontinent · <strong>EU</strong> = geopolitische Organisation (27 Länder) · <strong>Eurozone</strong> = Währungsunion (21 Länder mit €)"
+  },
+  pantallas: [
+    {
+      id: "europa_steckbrief",
+      navLabel: "Europa",
+      navIcon: "01",
+      tipo: "practica",
+      modo: "examen",
+      datos: {
+        categoria: "Teil A · Europa",
+        titulo: "Europa — Steckbrief",
+        descripcion: "Lies den Text und füll den Steckbrief aus.",
+        bloques: [{
+          id: "blq_steckbrief",
+          tipo: "respuesta_corta",
+          datos: {
+            titulo: "Steckbrief ausfüllen",
+            texto: "Europa ist etwa 10,2 Millionen Quadratkilometer groß. Damit ist es der zweitkleinste Kontinent nach Australien. In Europa leben etwa 750 Millionen Menschen.",
+            modoCorreccion: "exacta",
+            tolerancia: 1,
+            items: [
+              { id: "sb_flaeche",    label: "Europa hat insgesamt eine Fläche von ______ Quadratkilometern.", placeholder: "z.B. 10,2 Mio.", solucion: "10,2 Millionen", alternativas: ["10,2 Mio", "10.2 Millionen", "10,2"] },
+              { id: "sb_kleinste",  label: "Europa ist der ______ kleinste Kontinent.", placeholder: "zweit...", solucion: "zweitkleinste", alternativas: ["zweit"] },
+              { id: "sb_menschen",  label: "In Europa leben etwa ______ Millionen Menschen.", placeholder: "Zahl", solucion: "750", alternativas: ["750 Millionen"] }
+            ]
+          }
+        }]
+      }
+    },
+    {
+      id: "rekorde",
+      navLabel: "Rekorde",
+      navIcon: "02",
+      tipo: "practica",
+      modo: "examen",
+      datos: {
+        categoria: "Teil B · Rekorde und Sprachen",
+        titulo: "Europäische Rekorde",
+        descripcion: "Beantworte die Fragen zu den europäischen Rekorden.",
+        bloques: [{
+          id: "blq_rekorde",
+          tipo: "respuesta_corta",
+          datos: {
+            titulo: "Rekorde",
+            modoCorreccion: "exacta",
+            tolerancia: 1,
+            items: [
+              { id: "rek_groesstes",  label: "Das größte europäische Land:", placeholder: "Land…", solucion: "Russland" },
+              { id: "rek_fluss",      label: "Der längste Fluss in Europa:", placeholder: "Fluss…", solucion: "Wolga" },
+              { id: "rek_kleinstes", label: "Das kleinste europäische Land:", placeholder: "Land…", solucion: "Vatikanstadt", alternativas: ["Vatikan"] },
+              { id: "rek_gebirge",   label: "Das höchste Gebirge in Europa:", placeholder: "Gebirge…", solucion: "Kaukasus Gebirge", alternativas: ["Kaukasus"] },
+              { id: "rek_stadt",     label: "Die größte Stadt in Europa:", placeholder: "Stadt…", solucion: "Istanbul" }
+            ]
+          }
+        }, {
+          id: "blq_sprachen",
+          tipo: "respuesta_corta",
+          datos: {
+            titulo: "3 europäische Sprachen",
+            modoCorreccion: "lista_valida",
+            tolerancia: 1,
+            items: [{
+              id: "sprachen_liste",
+              label: "Nenne 3 europäische Sprachen (mit Komma getrennt):",
+              placeholder: "Sprache 1, Sprache 2, Sprache 3",
+              solucion: "Deutsch",
+              cantidad: 3,
+              hint: "Schreibe 3 Sprachen, getrennt durch Kommas.",
+              respuestasValidas: ["Deutsch","Spanisch","Französisch","Italienisch","Englisch","Portugiesisch","Polnisch","Niederländisch","Schwedisch","Dänisch","Griechisch","Tschechisch","Ungarisch","Rumänisch","Bulgarisch","Kroatisch","Slowakisch","Finnisch","Norwegisch","Russisch"]
+            }]
+          }
+        }, {
+          id: "blq_waehrungen",
+          tipo: "respuesta_corta",
+          datos: {
+            titulo: "3 europäische Währungen",
+            modoCorreccion: "lista_valida",
+            tolerancia: 1,
+            items: [{
+              id: "waehr_liste",
+              label: "Nenne 3 europäische Währungen (mit Komma getrennt):",
+              placeholder: "Währung 1, Währung 2, Währung 3",
+              solucion: "Euro",
+              cantidad: 3,
+              hint: "Schreibe 3 Währungen, getrennt durch Kommas.",
+              respuestasValidas: ["Euro","Pfund","Norwegische Krone","Schwedische Krone","Dänische Krone","Schweizer Franken","Polnischer Zloty","Tschechische Krone","Ungarischer Forint","Rumänischer Leu","Kroatische Kuna","Bulgarischer Lew","Isländische Krone"]
+            }]
+          }
+        }]
+      }
+    },
+    {
+      id: "eu_eurozone",
+      navLabel: "EU & Eurozone",
+      navIcon: "03",
+      tipo: "practica",
+      modo: "examen",
+      datos: {
+        categoria: "Teil C · Europa, EU und Eurozone",
+        titulo: "Europa, EU und Eurozone",
+        descripcion: "Ordne die Begriffe ihrer Definition zu.",
+        bloques: [{
+          id: "blq_match_eu",
+          tipo: "match",
+          datos: {
+            titulo: "Begriffe zuordnen",
+            labelA: "Begriff",
+            labelB: "Definition",
+            colA: [
+              { id: "eu_europa",    texto: "Europa" },
+              { id: "eu_eu",        texto: "Europäische Union" },
+              { id: "eu_eurozone",  texto: "Eurozone" }
+            ],
+            colB: [
+              { id: "def_kontinent", texto: "Kontinent (physischer Ort)" },
+              { id: "def_geopolit",  texto: "geopolitische Organisation" },
+              { id: "def_waehrung",  texto: "Währungsunion (€)" }
+            ],
+            pares: {
+              "eu_europa":   "def_kontinent",
+              "eu_eu":       "def_geopolit",
+              "eu_eurozone": "def_waehrung"
+            }
+          }
+        }, {
+          id: "blq_zahlen_eu",
+          tipo: "respuesta_corta",
+          datos: {
+            titulo: "Zahlen",
+            modoCorreccion: "exacta",
+            tolerancia: 0,
+            items: [
+              { id: "eu_anzahl",      label: "Die EU hat ______ Länder.", placeholder: "Zahl", solucion: "27" },
+              { id: "euro_anzahl",    label: "______ der 27 EU-Länder haben den Euro.", placeholder: "Zahl", solucion: "21" }
+            ]
+          }
+        }]
+      }
+    },
+    {
+      id: "eu_staaten",
+      navLabel: "EU-Staaten",
+      navIcon: "04",
+      tipo: "practica",
+      modo: "examen",
+      datos: {
+        categoria: "Teil D · EU-Mitglieder",
+        titulo: "EU-Staaten erkennen",
+        descripcion: "Ordne die Länder: EU-Mitglied oder noch nicht EU?",
+        bloques: [{
+          id: "blq_dnd_eu",
+          tipo: "dnd",
+          datos: {
+            titulo: "EU oder nicht EU?",
+            zonas: [
+              { id: "zona_eu",       etiqueta: "EU-Mitglied" },
+              { id: "zona_nicht_eu", etiqueta: "Noch nicht EU" }
+            ],
+            items: [
+              { id: "land_de",  texto: "Deutschland",   categoriaCorrecta: "zona_eu" },
+              { id: "land_fr",  texto: "Frankreich",    categoriaCorrecta: "zona_eu" },
+              { id: "land_pl",  texto: "Polen",         categoriaCorrecta: "zona_eu" },
+              { id: "land_es",  texto: "Spanien",       categoriaCorrecta: "zona_eu" },
+              { id: "land_it",  texto: "Italien",       categoriaCorrecta: "zona_eu" },
+              { id: "land_se",  texto: "Schweden",      categoriaCorrecta: "zona_eu" },
+              { id: "land_hr",  texto: "Kroatien",      categoriaCorrecta: "zona_eu" },
+              { id: "land_tr",  texto: "Türkei",        categoriaCorrecta: "zona_nicht_eu" },
+              { id: "land_ua",  texto: "Ukraine",       categoriaCorrecta: "zona_nicht_eu" },
+              { id: "land_no",  texto: "Norwegen",      categoriaCorrecta: "zona_nicht_eu" },
+              { id: "land_ch",  texto: "Schweiz",       categoriaCorrecta: "zona_nicht_eu" },
+              { id: "land_rs",  texto: "Serbien",       categoriaCorrecta: "zona_nicht_eu" }
+            ]
+          }
+        }]
+      }
+    },
+    {
+      id: "quiz_europa",
+      navLabel: "Quiz",
+      navIcon: "05",
+      tipo: "practica",
+      modo: "examen",
+      datos: {
+        categoria: "Teil E · Quiz",
+        titulo: "Quiz — Lösungswort",
+        descripcion: "Wähle den richtigen Buchstaben. Das Lösungswort ergibt sich aus den richtigen Antworten.",
+        bloques: [{
+          id: "blq_quiz_codigo",
+          tipo: "quiz_codigo",
+          datos: {
+            titulo: "Quiz",
+            instruccion: "Schreibe den Buchstaben der richtigen Antwort auf.",
+            losungswort: "BRATISLAVA",
+            items: [
+              { id: "qc_01", pregunta: "Welches Land liegt nicht in Europa?",            opciones: [{codigo:"B",texto:"Brasilien"},{codigo:"S",texto:"Spanien"},{codigo:"H",texto:"Monaco"}],              correcta: "B" },
+              { id: "qc_02", pregunta: "Welche Hauptstadt gehört zu Frankreich?",         opciones: [{codigo:"A",texto:"Rom"},{codigo:"R",texto:"Paris"},{codigo:"I",texto:"Madrid"}],                correcta: "R" },
+              { id: "qc_03", pregunta: "In welchem Land spricht man Italienisch?",        opciones: [{codigo:"A",texto:"Italien"},{codigo:"E",texto:"Polen"},{codigo:"O",texto:"Schweden"}],            correcta: "A" },
+              { id: "qc_04", pregunta: "Wie heißt die Hauptstadt von Deutschland?",       opciones: [{codigo:"P",texto:"Wien"},{codigo:"T",texto:"Berlin"},{codigo:"N",texto:"Zürich"}],               correcta: "T" },
+              { id: "qc_05", pregunta: "In welchem Land spricht man Spanisch?",           opciones: [{codigo:"I",texto:"Spanien"},{codigo:"A",texto:"Griechenland"},{codigo:"U",texto:"Norwegen"}],    correcta: "I" },
+              { id: "qc_06", pregunta: "Welches Land liegt nicht in Europa?",             opciones: [{codigo:"G",texto:"Portugal"},{codigo:"S",texto:"Kanada"},{codigo:"R",texto:"Belgien"}],          correcta: "S" },
+              { id: "qc_07", pregunta: "Wie heißt die Hauptstadt von Italien?",           opciones: [{codigo:"L",texto:"Rom"},{codigo:"M",texto:"Oslo"},{codigo:"D",texto:"Brüssel"}],                 correcta: "L" },
+              { id: "qc_08", pregunta: "In welchem Land spricht man Englisch als Muttersprache?", opciones: [{codigo:"A",texto:"Irland"},{codigo:"I",texto:"Tschechien"},{codigo:"O",texto:"Ungarn"}], correcta: "A" },
+              { id: "qc_09", pregunta: "Wie heißt die Hauptstadt von Griechenland?",      opciones: [{codigo:"V",texto:"Athen"},{codigo:"M",texto:"Sofia"},{codigo:"S",texto:"Zagreb"}],              correcta: "V" },
+              { id: "qc_10", pregunta: "In welchem Land liegt die Stadt Brüssel?",        opciones: [{codigo:"A",texto:"Belgien"},{codigo:"T",texto:"Luxemburg"},{codigo:"E",texto:"Niederlande"}],   correcta: "A" }
+            ]
+          }
+        }]
+      }
+    },
+    {
+      id: "urlaub",
+      navLabel: "Urlaub",
+      navIcon: "06",
+      tipo: "practica",
+      modo: "examen",
+      datos: {
+        categoria: "Teil F · Urlaub",
+        titulo: "Urlaub — In welcher Stadt?",
+        descripcion: "Lies die Texte. In welcher Stadt machen sie Urlaub? Schreibe den Namen der Stadt auf.",
+        bloques: [{
+          id: "blq_urlaub",
+          tipo: "respuesta_corta",
+          datos: {
+            titulo: "Städte erkennen",
+            modoCorreccion: "exacta",
+            tolerancia: 1,
+            items: [
+              { id: "url_1", label: "1 · Ich fahre bald nach Großbritannien. Dort möchte ich mir die Hauptstadt L _ _ _ _ _ anschauen und unbedingt den Buckingham Palace besuchen.", placeholder: "Stadt…", solucion: "London" },
+              { id: "url_2", label: "2 · Nächstes Jahr mache ich Urlaub in Griechenland. In der Hauptstadt _ _ _ _ _ muss ich dann unbedingt die Akropolis besichtigen.", placeholder: "Stadt…", solucion: "Athen" },
+              { id: "url_3", label: "3 · Letzte Woche war ich in der Hauptstadt des Landes Deutschland unterwegs. Sie heißt B _ _ _ _ _ und ich habe mir dort das Brandenburger Tor angeschaut.", placeholder: "Stadt…", solucion: "Berlin" },
+              { id: "url_4", label: "4 · Die Hauptstadt der Niederlande heißt _ _ _ _ _ _ _ _ _ und man findet dort ziemlich viele Grachten (Wasserkanäle).", placeholder: "Stadt…", solucion: "Amsterdam" },
+              { id: "url_5", label: "5 · Dieses Jahr fahren wir auf Klassenfahrt nach Österreich. Dort wollen wir in der Hauptstadt _ _ _ _ einige schöne Schlösser besuchen.", placeholder: "Stadt…", solucion: "Wien" }
+            ]
+          }
+        }]
+      }
+    },
+    {
+      id: "laender_erkennen",
+      navLabel: "Länder",
+      navIcon: "07",
+      tipo: "practica",
+      modo: "examen",
+      datos: {
+        categoria: "Teil G · Länder erkennen",
+        titulo: "Erkennt ihr die Länder?",
+        descripcion: "Schreibt das Land und die Hauptstadt des Landes auf.",
+        bloques: [{
+          id: "blq_img_form",
+          tipo: "imagen_formulario",
+          datos: {
+            titulo: "Länder und Hauptstädte",
+            instruccion: "Schreibt das Land und die Hauptstadt des Landes auf.",
+            imagen: "https://github.com/metal451/Ania_Aleman/blob/main/imagenes/geshiste.jpg?raw=true",
+            tolerancia: 1,
+            filas: [
+              { id: "land_f1",  numero: 1,  land: "Dänemark",       hauptstadt: "Kopenhagen" },
+              { id: "land_f2",  numero: 2,  land: "Großbritannien", hauptstadt: "London",    alternativasLand: ["Vereinigtes Königreich","GB"] },
+              { id: "land_f3",  numero: 3,  land: "Schweden",       hauptstadt: "Stockholm" },
+              { id: "land_f4",  numero: 4,  land: "Island",         hauptstadt: "Reykjavik", alternativasHauptstadt: ["Reykjavík"] },
+              { id: "land_f5",  numero: 5,  land: "Spanien",        hauptstadt: "Madrid" },
+              { id: "land_f6",  numero: 6,  land: "Deutschland",    hauptstadt: "Berlin" },
+              { id: "land_f7",  numero: 7,  land: "Griechenland",   hauptstadt: "Athen" },
+              { id: "land_f8",  numero: 8,  land: "Italien",        hauptstadt: "Rom" },
+              { id: "land_f9",  numero: 9,  land: "Österreich",     hauptstadt: "Wien" },
+              { id: "land_f10", numero: 10, land: "Tschechien",     hauptstadt: "Prag",      alternativasLand: ["Tschechische Republik"] }
+            ]
+          }
+        }]
+      }
+    },
+    {
+      id: "abgeben",
+      navLabel: "Abgeben",
+      navIcon: "08",
+      tipo: "abgeben",
+      datos: {
+        titulo:    "Prüfung abgeben",
+        subtitulo: "Bereit abzugeben?"
+      }
+    }
+  ]
+};
+
+const STORAGE_KEY = `leccion_${LECCION.meta.id}_v${LECCION.meta.version}`;
+
+function escapeHtml(str) {
+  return String(str ?? '')
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+function normalizeAnswer(s) {
+  return String(s).toLowerCase().normalize('NFD').replace(/\p{M}/gu, '')
+    .replace(/ß/g, 'ss').replace(/[^\p{L}\p{N}\s]/gu, '').replace(/\s+/g, ' ').trim();
+}
+
+function buildClozePhrase(item, word) {
+  if (!word) return '';
+  return `${item.fraseAntes.trim()} ${word} ${item.fraseDespues.trim()}`.replace(/\s+/g, ' ');
+}
+
+function levenshtein(a, b) {
+  const m = a.length, n = b.length;
+  const dp = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
+  for (let i = 0; i <= m; i++) dp[i][0] = i;
+  for (let j = 0; j <= n; j++) dp[0][j] = j;
+  for (let i = 1; i <= m; i++)
+    for (let j = 1; j <= n; j++) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      dp[i][j] = Math.min(dp[i - 1][j] + 1, dp[i][j - 1] + 1, dp[i - 1][j - 1] + cost);
+    }
+  return dp[m][n];
+}
+
+function isAnswerCorrect(user, solution) {
+  const a = normalizeAnswer(user), b = normalizeAnswer(solution);
+  if (!a) return false;
+  if (a === b) return true;
+  return levenshtein(a, b) <= 2;
+}
+
+function isSingularRow(pron) {
+  const p = pron.toLowerCase();
+  return p.startsWith('ich') || p.startsWith('er') || p.startsWith('er/');
+}
+
+function triggerConfetti() {
+  const colors = ['#b38e4a', '#581825', '#2c5e43', '#e8c47a', '#ffffff'];
+  for (let i = 0; i < 80; i++) {
+    const conf = document.createElement('div');
+    conf.className = 'confetti-piece';
+    conf.style.left = Math.random() * 100 + 'vw';
+    conf.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+    conf.style.width = Math.random() * 8 + 4 + 'px';
+    conf.style.height = Math.random() * 12 + 6 + 'px';
+    conf.style.opacity = '1';
+    conf.style.transform = `rotate(${Math.random() * 360}deg)`;
+    conf.style.transition = `top ${Math.random() * 2 + 2}s linear, opacity ${Math.random() * 2 + 2}s ease-in, transform ${Math.random() * 2 + 2}s ease`;
+    document.body.appendChild(conf);
+
+    setTimeout(() => {
+      conf.style.top = '100vh';
+      conf.style.transform = `rotate(${Math.random() * 720}deg)`;
+      conf.style.opacity = '0';
+    }, 50);
+    setTimeout(() => conf.remove(), 4500);
+  }
+}
+
+const AppState = {
+  currentScreenId: null,
+  clozeAnswers: {},
+  prodAnswers: {},
+  userAnswers: {},
+  visitedScreens: new Set(),
+  quizEvaluated: false,
+  quizResult: null,
+
+  blockAnswers: {},
+  blockResults: {},
+  sortState: {},
+  dndState: {},
+  matchActive: {},
+  flashcardState: {},
+
+  examAnswers:   {},
+  examSubmitted: false,
+  examResult:    null,
+
+  load() {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const data = JSON.parse(saved);
+        this.clozeAnswers    = data.clozeAnswers   || {};
+        this.prodAnswers     = data.prodAnswers    || {};
+        this.userAnswers     = data.userAnswers    || {};
+        this.visitedScreens  = new Set(data.visitedScreens || []);
+        this.quizEvaluated   = data.quizEvaluated  || false;
+        this.quizResult      = data.quizResult     || null;
+        this.currentScreenId = data.currentScreenId || null;
+        this.blockAnswers    = data.blockAnswers   || {};
+        this.blockResults    = data.blockResults   || {};
+        this.sortState       = data.sortState      || {};
+        this.dndState        = data.dndState       || {};
+        this.examAnswers     = data.examAnswers    || {};
+        this.examSubmitted   = data.examSubmitted  || false;
+        this.examResult      = data.examResult     || null;
+      }
+    } catch(e) { console.warn('Error loading progress:', e); }
+  },
+
+  save() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        clozeAnswers:    this.clozeAnswers,
+        prodAnswers:     this.prodAnswers,
+        userAnswers:     this.userAnswers,
+        visitedScreens:  Array.from(this.visitedScreens),
+        quizEvaluated:   this.quizEvaluated,
+        quizResult:      this.quizResult,
+        currentScreenId: this.currentScreenId,
+        blockAnswers:    this.blockAnswers,
+        blockResults:    this.blockResults,
+        sortState:       this.sortState,
+        dndState:        this.dndState,
+        examAnswers:     this.examAnswers,
+        examSubmitted:   this.examSubmitted,
+        examResult:      this.examResult
+      }));
+    } catch(e) { console.warn('Error saving progress:', e); }
+  },
+
+  reset() {
+    localStorage.removeItem(STORAGE_KEY);
+    this.clozeAnswers  = {};
+    this.prodAnswers   = {};
+    this.userAnswers   = {};
+    this.visitedScreens = new Set();
+    this.quizEvaluated = false;
+    this.quizResult    = null;
+    this.blockAnswers  = {};
+    this.blockResults  = {};
+    this.sortState     = {};
+    this.dndState      = {};
+    this.matchActive   = {};
+    this.flashcardState = {};
+    this.examAnswers   = {};
+    this.examSubmitted = false;
+    this.examResult    = null;
+    Renderer.switchScreen(LECCION.pantallas[0].id);
+  }
+};
+
+const AudioEngine = {
+  isSpeaking: false,
+  activeButton: null,
+  germanVoices: [],
+  rate: 1,
+
+  init() {
+    const loadVoices = () => {
+      this.germanVoices = (window.speechSynthesis?.getVoices() || [])
+        .filter(v => v.lang?.toLowerCase().startsWith('de'));
+    };
+    loadVoices();
+    if (window.speechSynthesis) speechSynthesis.addEventListener('voiceschanged', loadVoices);
+    this.updateRateUI();
+  },
+
+  setRate(value) {
+    this.rate = value;
+    this.updateRateUI();
+  },
+
+  updateRateUI() {
+    document.querySelectorAll('[data-rate]').forEach(btn => {
+      const v = parseFloat(btn.dataset.rate);
+      btn.classList.toggle('active', v === this.rate);
+    });
+  },
+
+  pickVoice() {
+    const voices = this.germanVoices.length ? this.germanVoices
+      : (window.speechSynthesis?.getVoices() || []).filter(v => v.lang?.toLowerCase().startsWith('de'));
+    const google = voices.find(v => v.name?.toLowerCase().includes('google'));
+    const exact  = voices.find(v => v.lang === (LECCION.meta.lang || 'de-DE'));
+    const base   = voices.find(v => v.lang?.toLowerCase().startsWith('de'));
+    return google || exact || base || voices[0] || null;
+  },
+
+  stop() {
+    window.speechSynthesis?.cancel();
+    this.isSpeaking = false;
+    if (this.activeButton) this.activeButton.classList.remove('speaking');
+    this.activeButton = null;
+    const ind = document.getElementById('ttsIndicator');
+    ind.classList.remove('active');
+    ind.hidden = true;
+  },
+
+  speak(text, buttonElement = null, options = {}) {
+    if (!text || !window.speechSynthesis) return;
+    this.stop();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = LECCION.meta.lang || 'de-DE';
+    u.rate = this.rate;
+    const voice = this.pickVoice();
+    if (voice) u.voice = voice;
+    const ind = document.getElementById('ttsIndicator');
+    const ttsText = document.getElementById('ttsText');
+    const hidden = options.hidden === true;
+    u.onstart = () => {
+      this.isSpeaking = true;
+      this.activeButton = buttonElement;
+      if (buttonElement) buttonElement.classList.add('speaking');
+      ind.hidden = false;
+      ind.classList.add('active');
+      ttsText.textContent = hidden ? 'Hör zu…' : `"${text}"`;
+    };
+    u.onend = () => this.stop();
+    u.onerror = () => this.stop();
+    window.speechSynthesis.speak(u);
+  },
+
+  speakHidden(text, buttonElement = null) {
+    return this.speak(text, buttonElement, { hidden: true });
+  }
+};
+
+const ThemeManager = {
+  init() {
+    const savedTheme = localStorage.getItem('idiomas_theme');
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+      document.body.setAttribute('data-theme', 'dark');
+      this.updateBtnText(true);
+    }
+  },
+  toggle() {
+    const isDark = document.body.getAttribute('data-theme') === 'dark';
+    if (isDark) {
+      document.body.removeAttribute('data-theme');
+      localStorage.setItem('idiomas_theme', 'light');
+      this.updateBtnText(false);
+    } else {
+      document.body.setAttribute('data-theme', 'dark');
+      localStorage.setItem('idiomas_theme', 'dark');
+      this.updateBtnText(true);
+    }
+  },
+  updateBtnText(isDark) {
+    const btn = document.getElementById('theme-toggle');
+    if (btn) btn.innerHTML = isDark ? '☀️ Modo Claro' : '🌙 Modo Oscuro';
+  }
+};
+
+const Renderer = {
+  eventsBound: false,
+
+  init() {
+    AppState.load();
+    ThemeManager.init();
+    document.title = `${LECCION.meta.titulo} — Interaktive Deutschlektion`;
+    this.bindEvents();
+    this.renderHeader();
+    this.renderNav();
+    
+    const targetScreen = AppState.currentScreenId || LECCION.pantallas[0]?.id;
+    if (targetScreen) this.switchScreen(targetScreen);
+  },
+
+  bindEvents() {
+    if (this.eventsBound) return;
+    this.eventsBound = true;
+
+    document.getElementById('app-nav').addEventListener('click', e => {
+      const btn = e.target.closest('[data-screen-id]');
+      if (btn) this.switchScreen(btn.dataset.screenId);
+    });
+
+    document.querySelector('.sidebar-stack').addEventListener('click', e => {
+      const rateBtn = e.target.closest('[data-rate]');
+      if (rateBtn) AudioEngine.setRate(parseFloat(rateBtn.dataset.rate));
+      
+      if (e.target.closest('#theme-toggle')) ThemeManager.toggle();
+      
+      if (e.target.closest('#reset-progress')) {
+        if(confirm("¿Estás seguro de que quieres borrar tu progreso y empezar de nuevo?")) {
+          AppState.reset();
+        }
+      }
+    });
+
+    const container = document.getElementById('screen-container');
+    
+    container.addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        const input = e.target.closest('[data-prod-input]');
+        if (input) {
+          const checkBtn = document.querySelector(`button[data-prod-check="${input.dataset.prodInput}"]`);
+          if (checkBtn) checkBtn.click();
+        }
+      }
+    });
+
+    container.addEventListener('click', e => {
+      const imgInteractiva = e.target.closest('[data-action="lightbox"]');
+      if (imgInteractiva) {
+        const overlay = document.getElementById('custom-lightbox');
+        document.getElementById('lightbox-target-img').src = imgInteractiva.src;
+        overlay.classList.add('active');
+        overlay.setAttribute('aria-hidden', 'false');
+        return;
+      }
+
+      const speakBtn = e.target.closest('[data-speak]');
+      if (speakBtn) { AudioEngine.speak(speakBtn.dataset.speak, speakBtn); return; }
+
+      const clozeBtn = e.target.closest('[data-cloze-id][data-cloze-opt]');
+      if (clozeBtn) { this.selectCloze(clozeBtn.dataset.clozeId, clozeBtn.dataset.clozeOpt); return; }
+
+      const prodBtn = e.target.closest('[data-prod-check]');
+      if (prodBtn) { this.checkProd(prodBtn.dataset.prodCheck, prodBtn.dataset.prodSolution); return; }
+
+      const quizBtn = e.target.closest('[data-quiz-id][data-quiz-opt]');
+      if (quizBtn) { this.selectQuiz(quizBtn.dataset.quizId, Number(quizBtn.dataset.quizOpt)); return; }
+
+      if (e.target.closest('[data-quiz-evaluate]')) this.evaluateQuiz();
+      if (e.target.closest('[data-quiz-restart]')) this.restartQuiz();
+      const backBtn = e.target.closest('.btn-secondary[data-screen-id]');
+      if (backBtn) this.switchScreen(backBtn.dataset.screenId);
+
+      const sortWord = e.target.closest('[data-sort-word]');
+      if (sortWord) { PracticeEngine.handleSortWord(sortWord); this.calculateProgress(); return; }
+
+      const sortCheck = e.target.closest('[data-sort-check]');
+      if (sortCheck) { PracticeEngine.checkSort(sortCheck.dataset.sortCheck, sortCheck.dataset.sortBlock); this.calculateProgress(); return; }
+
+      const sortReset = e.target.closest('[data-sort-reset]');
+      if (sortReset) { PracticeEngine.resetSort(sortReset.dataset.sortReset, sortReset.dataset.sortBlock); this.calculateProgress(); return; }
+
+      const dictPlay = e.target.closest('[data-dictado-play]');
+      if (dictPlay) { AudioEngine.speakHidden(dictPlay.dataset.dictadoPlay, dictPlay); return; }
+
+      const dictCheck = e.target.closest('[data-dictado-check]');
+      if (dictCheck) { PracticeEngine.checkDictado(dictCheck.dataset.dictadoCheck, dictCheck.dataset.dictadoBlock); this.calculateProgress(); return; }
+
+      const dictReset = e.target.closest('[data-dictado-reset]');
+      if (dictReset) { PracticeEngine.resetDictado(dictReset.dataset.dictadoReset, dictReset.dataset.dictadoBlock); this.calculateProgress(); return; }
+
+      const matchBtn = e.target.closest('[data-match-side]');
+      if (matchBtn && !matchBtn.disabled) { PracticeEngine.handleMatch(matchBtn); this.calculateProgress(); return; }
+
+      const matchReset = e.target.closest('[data-match-reset]');
+      if (matchReset) { PracticeEngine.resetMatch(matchReset.dataset.matchReset); this.calculateProgress(); return; }
+
+      const fcCard = e.target.closest('[data-fc-id]');
+      if (fcCard) { PracticeEngine.toggleFlashcard(fcCard); this.calculateProgress(); return; }
+
+      const dndCheck = e.target.closest('[data-dnd-check]');
+      if (dndCheck) { PracticeEngine.checkDnd(dndCheck.dataset.dndCheck); this.calculateProgress(); return; }
+
+      const dndReset = e.target.closest('[data-dnd-reset]');
+      if (dndReset) { PracticeEngine.resetDnd(dndReset.dataset.dndReset); this.calculateProgress(); return; }
+
+      if (e.target.closest('[data-exam-submit]')) {
+        if (confirm('Prüfung wirklich abgeben? Diese Aktion kann nicht rückgängig gemacht werden.')) {
+          this.evaluateExam();
+        }
+        return;
+      }
+
+      if (e.target.closest('[data-exam-review]')) {
+        const primera = LECCION.pantallas.find(p => p.tipo === 'practica' && p.modo === 'examen');
+        if (primera) this.switchScreen(primera.id);
+        return;
+      }
+    });
+
+    PracticeEngine.initDnd(container);
+
+    container.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        const fcCard = e.target.closest('[data-fc-id]');
+        if (fcCard) { e.preventDefault(); PracticeEngine.toggleFlashcard(fcCard); Renderer.calculateProgress(); return; }
+      }
+    });
+
+    container.addEventListener('change', e => {
+      const radio = e.target.closest('[data-exam-radio]');
+      if (radio && radio.type === 'radio') {
+        AppState.examAnswers[radio.dataset.examRadio] = radio.value;
+        AppState.save();
+      }
+    });
+
+    container.addEventListener('input', e => {
+      const input = e.target.closest('[data-prod-input]');
+      if (input) {
+        AppState.prodAnswers[input.dataset.prodInput] = input.value;
+        this.calculateProgress();
+        AppState.save();
+      }
+      const dictInput = e.target.closest('[data-dictado-input]');
+      if (dictInput) {
+        AppState.blockAnswers[dictInput.dataset.dictadoInput] = dictInput.value;
+        AppState.save();
+      }
+      const examInput = e.target.closest('[data-exam-input]');
+      if (examInput) {
+        AppState.examAnswers[examInput.dataset.examInput] = examInput.value;
+        AppState.save();
+      }
+    });
+
+    document.getElementById('custom-lightbox').addEventListener('click', e => {
+      if (e.target.closest('.lightbox-close') || e.target.id === 'custom-lightbox') {
+        const overlay = document.getElementById('custom-lightbox');
+        overlay.classList.remove('active');
+        overlay.setAttribute('aria-hidden', 'true');
+      }
+    });
+  },
+
+  renderHeader() {
+    const m = LECCION.meta;
+    const screenIds = LECCION.pantallas.map(p => p.id);
+    document.getElementById('app-header').innerHTML = `
+      <div class="header-inner">
+        <div class="header-main">
+          <div class="header-badge">${escapeHtml(m.badge)}</div>
+          <h1 lang="${escapeHtml(m.lang)}">${escapeHtml(m.titulo)}</h1>
+          <p>${escapeHtml(m.descripcion)}</p>
+        </div>
+        <div class="progress-panel" aria-label="Progreso de la lección">
+          <div class="progress-label">
+            <span>Progreso</span>
+            <strong id="progressPercent">0%</strong>
+          </div>
+          <div class="progress-track"><div class="progress-fill" id="progressBar"></div></div>
+          <div class="progress-dots" id="progressDots">
+            ${screenIds.map(id => `<span class="progress-dot" id="prog-dot-${escapeHtml(id)}" title="${escapeHtml(id)}"></span>`).join('')}
+          </div>
+        </div>
+      </div>`;
+    this.fitTitulo();
+  },
+
+  fitTitulo() {
+    const h1 = document.querySelector('#app-header h1');
+    if (!h1) return;
+    const contenedor = h1.parentElement;
+    const anchoDisponible = contenedor.offsetWidth;
+    if (!anchoDisponible) return;
+
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+
+    const MAX = 56;
+    const MIN = 16;
+
+    let size = MAX;
+    ctx.font = `400 ${size}px 'DM Serif Display', serif`;
+    let anchoTexto = ctx.measureText(LECCION.meta.titulo).width;
+
+    if (anchoTexto > anchoDisponible) {
+      size = Math.floor(size * (anchoDisponible / anchoTexto) * 0.92);
+      size = Math.max(MIN, Math.min(MAX, size));
+    }
+
+    document.documentElement.style.setProperty('--h1-size', `${size}px`);
+  },
+
+  renderNav() {
+    document.getElementById('app-nav').innerHTML = LECCION.pantallas.map(p => `
+      <li class="nav-item" id="nav-${escapeHtml(p.id)}">
+        <button type="button" data-screen-id="${escapeHtml(p.id)}" aria-controls="screen-container">
+          <span class="nav-icon" aria-hidden="true">${escapeHtml(p.navIcon)}</span>
+          ${escapeHtml(p.navLabel)}
+        </button>
+      </li>`).join('');
+  },
+
+  calculateProgress() {
+    const N = LECCION.pantallas.length;
+    if (!N) return;
+
+    const completitudDe = p => {
+      switch (p.tipo) {
+        case 'explicacion':
+        case 'conjugacion': return AppState.visitedScreens.has(p.id) ? 1 : 0;
+        case 'cloze': return (p.datos.items?.filter(i => AppState.clozeAnswers[i.id] !== undefined).length ?? 0) / (p.datos.items?.length || 1);
+        case 'produccion': return (p.datos.items?.filter(i => AppState.prodAnswers[i.id]?.trim()).length ?? 0) / (p.datos.items?.length || 1);
+        case 'quiz':
+          if (AppState.quizEvaluated) return 1;
+          return (p.datos.preguntas?.filter(q => AppState.userAnswers[q.id] !== undefined).length ?? 0) / (p.datos.preguntas?.length || 1);
+        case 'practica': {
+          const bloques = p.datos.bloques;
+          if (!bloques?.length) return AppState.visitedScreens.has(p.id) ? 1 : 0;
+          const done = bloques.filter(b => PracticeEngine.isBlockComplete(b)).length;
+          return done / bloques.length;
+        }
+        default: return AppState.visitedScreens.has(p.id) ? 1 : 0;
+      }
+    };
+
+    const pct = Math.round(LECCION.pantallas.reduce((sum, p) => sum + completitudDe(p), 0) / N * 100);
+
+    const bar   = document.getElementById('progressBar');
+    const label = document.getElementById('progressPercent');
+    if (bar)   bar.style.width   = `${pct}%`;
+    if (label) label.textContent = `${pct}%`;
+
+    LECCION.pantallas.forEach(p => {
+      const dot = document.getElementById(`prog-dot-${p.id}`);
+      if (!dot) return;
+      dot.className = 'progress-dot';
+      if (AppState.currentScreenId === p.id) dot.classList.add('current');
+      else if (AppState.visitedScreens.has(p.id)) dot.classList.add('visited');
+    });
+  },
+
+  switchScreen(screenId) {
+    AudioEngine.stop();
+    AppState.currentScreenId = screenId;
+    AppState.visitedScreens.add(screenId);
+    AppState.save();
+
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.classList.remove('active');
+      item.querySelector('button')?.removeAttribute('aria-current');
+    });
+    const activeNav = document.getElementById(`nav-${screenId}`);
+    if (activeNav) {
+      activeNav.classList.add('active');
+      activeNav.querySelector('button')?.setAttribute('aria-current', 'page');
+    }
+
+    this.renderContainer();
+    this.calculateProgress();
+    
+    if(window.innerWidth < 960) {
+       document.getElementById('screen-container').scrollIntoView({ behavior: 'smooth' });
+    }
+  },
+
+  getScreen(id) { return LECCION.pantallas.find(p => p.id === id); },
+  getCurrentScreen() { return this.getScreen(AppState.currentScreenId); },
+
+  audioBtn(speakText, label) {
+    return `<button type="button" class="btn-audio" data-speak="${escapeHtml(speakText)}" aria-label="${escapeHtml(label)}">${ICON_SPEAKER}</button>`;
+  },
+
+  renderContainer() {
+    const pantalla = this.getCurrentScreen();
+    const container = document.getElementById('screen-container');
+    if (!pantalla) { container.innerHTML = '<p>Pantalla no encontrada.</p>'; return; }
+
+    const templates = {
+      explicacion: () => this.templateExplicacion(pantalla.datos),
+      conjugacion: () => this.templateConjugacion(pantalla.datos),
+      cloze: () => this.templateCloze(pantalla.datos),
+      produccion: () => this.templateProduccion(pantalla.datos),
+      quiz: () => this.templateQuiz(pantalla.datos),
+      pagina_cuento: () => this.templatePaginaCuento(pantalla.datos),
+      practica: () => PracticeEngine.templatePractica(pantalla.datos, pantalla.modo === 'examen'),
+      abgeben: () => this.templateAbgeben(pantalla.datos)
+    };
+    const html = (templates[pantalla.tipo] || (() => '<p>Tipo no soportado.</p>'))();
+    container.innerHTML = `<div class="animate-fade">${html}</div>`;
+    
+    if (pantalla.tipo === 'produccion') {
+       pantalla.datos.items.forEach(item => {
+          if (AppState.prodAnswers[item.id]) {
+             this.visualCheckProd(item.id, item.solucion);
+          }
+       });
+    }
+  },
+
+  templateExplicacion(d) {
+    const regla = LECCION.meta.reglaOro;
+    const imgBlock = d.imagen
+      ? `<div class="lesson-img-wrap"><img src="${escapeHtml(d.imagen)}" alt="${escapeHtml(d.titulo)}" loading="lazy" data-action="lightbox"></div>`
+      : '';
+    return `
+      <div class="eyebrow">${escapeHtml(d.categoria)}</div>
+      <h2 class="section-title">${escapeHtml(d.titulo)}</h2>
+      <p class="section-desc">${escapeHtml(d.descripcion)}</p>
+      ${imgBlock}
+      <div class="card-row">
+        ${d.tarjetas.map(t => `
+          <div class="gram-card ${escapeHtml(t.tipo)}">
+            <div class="card-title"><span class="verb-main" lang="de">${escapeHtml(t.verbo)}</span></div>
+            <p class="card-sub">${escapeHtml(t.traduccion)}</p>
+            <span class="card-use-badge">${escapeHtml(t.insignia)}</span>
+            <ul class="card-points">${t.puntos.map(p => `<li>${p}</li>`).join('')}</ul>
+            <div class="audio-example-box">
+              <div>
+                <p style="font-size:0.7rem;font-family:'DM Mono',monospace;color:var(--gray);text-transform:uppercase;margin-bottom:4px;">Ejemplo</p>
+                <div class="example-german" lang="de">${escapeHtml(t.ejemplo.de)}</div>
+                <div class="example-spanish">${escapeHtml(t.ejemplo.es)}</div>
+              </div>
+              ${this.audioBtn(t.ejemplo.de, 'Reproducir ejemplo')}
+            </div>
+          </div>`).join('')}
+      </div>
+      ${regla ? `
+      <div class="golden-rule">
+        <span class="golden-rule-icon" aria-hidden="true">🔑</span>
+        <div>
+          <p class="golden-rule-title">La regla de oro</p>
+          <p class="golden-rule-text">${regla}</p>
+        </div>
+      </div>` : ''}`;
+  },
+
+  templateConjugacion(d) {
+    return `
+      <div class="eyebrow">${escapeHtml(d.categoria)}</div>
+      <h2 class="section-title">${escapeHtml(d.titulo)}</h2>
+      <p class="section-desc">${d.descripcion}</p>
+      <div class="table-container">
+        <table class="table-conjugation">
+          <thead><tr>${d.tabla.encabezados.map(h => `<th scope="col">${escapeHtml(h)}</th>`).join('')}</tr></thead>
+          <tbody>
+            ${d.tabla.filas.map(f => {
+              const highlight = f.destaque || f.igual || isSingularRow(f.situacion ?? '');
+              const speakVerbo = f.audioVerbo || f.verbo;
+              const speakFrase = f.audioFrase || f.frase;
+              const situacionMatch = (f.situacion ?? '').match(/^([^(]+?)(?:\s*\((.+)\))?$/);
+              const situacionMain = situacionMatch ? situacionMatch[1].trim() : (f.situacion ?? '');
+              const situacionSub  = situacionMatch ? situacionMatch[2] || '' : '';
+              return `
+              <tr class="${highlight ? 'row-highlight' : ''}">
+                <td class="pronoun-cell">
+                  <span>${escapeHtml(situacionMain)}</span>
+                  ${situacionSub ? `<span class="pron-sub">${escapeHtml(situacionSub)}</span>` : ''}
+                  ${f.igual ? '<span class="badge-igual">¡IGUALES!</span>' : ''}
+                </td>
+                <td><div class="verb-cell"><span class="german" lang="de">${escapeHtml(f.verbo)}</span>${this.audioBtn(speakVerbo, 'Pronunciar ' + f.verbo)}</div></td>
+                <td><div class="verb-cell"><span class="german gold" lang="de">${escapeHtml(f.frase)}</span>${this.audioBtn(speakFrase, 'Pronunciar frase modelo')}</div></td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>`;
+  },
+
+  templateCloze(d) {
+    return `
+      <div class="eyebrow">${escapeHtml(d.categoria)}</div>
+      <h2 class="section-title">${escapeHtml(d.titulo)}</h2>
+      <p class="section-desc">${escapeHtml(d.descripcion)}</p>
+      <div class="cloze-list">
+        ${d.items.map((item, idx) => {
+          const selected = AppState.clozeAnswers[item.id] ?? null;
+          const ok = selected === item.correcta;
+          const cardClass = selected ? (ok ? 'correct' : 'incorrect') : '';
+          const badge = !selected ? 'Pendiente' : ok ? '✓ Correcto' : '✗ Reintentar';
+          const audioPhrase = selected ? buildClozePhrase(item, selected) : '';
+          return `
+          <div class="cloze-item ${cardClass}">
+            <div class="cloze-header">
+              <span>Enunciado ${idx + 1} · ${escapeHtml(item.contexto)}</span>
+              <span class="cloze-badge">${badge}</span>
+            </div>
+            <p class="cloze-sentence" lang="de">
+              ${escapeHtml(item.fraseAntes)}<span class="cloze-gap">${escapeHtml(selected || '______')}</span>${escapeHtml(item.fraseDespues)}
+            </p>
+            <div class="cloze-options">
+              ${item.opciones.map(opt => `
+                <button type="button" class="option-btn ${selected === opt ? 'selected' : ''}"
+                  data-cloze-id="${escapeHtml(item.id)}" data-cloze-opt="${escapeHtml(opt)}"
+                  aria-pressed="${selected === opt}">${escapeHtml(opt)}</button>`).join('')}
+              ${audioPhrase ? `<button type="button" class="btn-listen" data-speak="${escapeHtml(audioPhrase)}" aria-label="Escuchar frase">Escuchar frase</button>` : ''}
+            </div>
+            <div class="cloze-feedback ok" role="status">⭐ <strong>Excelente:</strong> ${escapeHtml(item.pista)}</div>
+            <div class="cloze-feedback hint" role="status">💡 <strong>Pista:</strong> ${escapeHtml(item.pista)}</div>
+          </div>`;
+        }).join('')}
+      </div>`;
+  },
+
+  selectCloze(itemId, option) {
+    AppState.clozeAnswers[itemId] = option;
+    AppState.save();
+    this.renderContainer();
+    this.calculateProgress();
+  },
+
+  templateProduccion(d) {
+    return `
+      <div class="eyebrow">${escapeHtml(d.categoria)}</div>
+      <h2 class="section-title">${escapeHtml(d.titulo)}</h2>
+      <p class="section-desc">${escapeHtml(d.descripcion)}</p>
+      <div class="prod-list">
+        ${d.items.map((item, idx) => {
+          const val = AppState.prodAnswers[item.id] || '';
+          return `
+          <div class="prod-item">
+            <p class="prod-meta">Ejercicio ${idx + 1} · Composición</p>
+            <label class="prod-instruction" for="${escapeHtml(item.id)}">${escapeHtml(item.instruccion)}</label>
+            <div class="prod-input-wrapper">
+              <input type="text" id="${escapeHtml(item.id)}" class="prod-input"
+                data-prod-input="${escapeHtml(item.id)}" placeholder="${escapeHtml(item.placeholder)}"
+                value="${escapeHtml(val)}" autocomplete="off" lang="de"
+                aria-describedby="feedback-${escapeHtml(item.id)}" />
+              <button type="button" class="prod-action-btn"
+                data-prod-check="${escapeHtml(item.id)}" data-prod-solution="${escapeHtml(item.solucion)}">
+                Validar y escuchar
+              </button>
+            </div>
+            <div id="feedback-${escapeHtml(item.id)}" class="prod-feedback" role="status"></div>
+          </div>`;
+        }).join('')}
+      </div>`;
+  },
+
+  visualCheckProd(itemId, solution) {
+    const input = document.getElementById(itemId);
+    const fb = document.getElementById(`feedback-${itemId}`);
+    if(!input || !fb) return;
+    const val = (input.value || '').trim();
+    if (!val) return;
+
+    fb.className = 'prod-feedback visible';
+    const exact = normalizeAnswer(val) === normalizeAnswer(solution);
+    const close = !exact && isAnswerCorrect(val, solution);
+
+    if (exact) {
+      fb.classList.add('exact');
+      fb.innerHTML = `⭐ <strong>¡Excepcional!</strong> Frase: <em lang="de">${escapeHtml(solution)}</em>`;
+    } else if (close) {
+      fb.classList.add('close');
+      fb.innerHTML = `👍 <strong>Casi correcto.</strong> Tu respuesta: <em>${escapeHtml(val)}</em><br>Solución: <strong lang="de">${escapeHtml(solution)}</strong>`;
+    } else {
+      fb.classList.add('wrong');
+      fb.innerHTML = `💡 <strong>Revisa la estructura.</strong> Tu respuesta: <em>${escapeHtml(val)}</em><br>Solución correcta: <strong lang="de">${escapeHtml(solution)}</strong>`;
+    }
+  },
+
+  checkProd(itemId, solution) {
+    const input = document.getElementById(itemId);
+    const fb = document.getElementById(`feedback-${itemId}`);
+    const val = (input?.value || '').trim();
+
+    if (!val) {
+      fb.className = 'prod-feedback visible empty';
+      fb.textContent = '⚠️ Escribe una respuesta antes de validar.';
+      return;
+    }
+
+    this.visualCheckProd(itemId, solution);
+    AudioEngine.speak(solution);
+    AppState.save();
+    this.calculateProgress();
+  },
+
+  templateQuiz(d) {
+    if (AppState.quizEvaluated && AppState.quizResult) {
+      const r = AppState.quizResult;
+      return `
+        <div class="animate-fade quiz-results">
+          <div class="quiz-results-icon" aria-hidden="true">${r.icon}</div>
+          <h2 class="section-title">${escapeHtml(r.title)}</h2>
+          <p class="section-desc" style="margin:0 auto 8px;">${escapeHtml(r.msg)}</p>
+          <div class="quiz-results-stats">
+            <div><span class="stat-num">${r.correct}/${r.total}</span><span class="stat-lbl">Puntaje</span></div>
+            <div><span class="stat-num">${r.pct}%</span><span class="stat-lbl">Eficiencia</span></div>
+          </div>
+          <div class="results-actions">
+            <button type="button" class="prod-action-btn" data-quiz-restart>Reintentar evaluación</button>
+            <button type="button" class="btn-secondary" data-screen-id="${escapeHtml(LECCION.pantallas[0].id)}">Volver al inicio</button>
+          </div>
+        </div>`;
+    }
+
+    const answered = d.preguntas.filter(q => AppState.userAnswers[q.id] !== undefined).length;
+    const total = d.preguntas.length;
+    return `
+      <div class="eyebrow">${escapeHtml(d.categoria)}</div>
+      <h2 class="section-title">${escapeHtml(d.titulo)}</h2>
+      <p class="section-desc">${escapeHtml(d.descripcion)}</p>
+      ${d.preguntas.map((q, idx) => {
+        const sel = AppState.userAnswers[q.id];
+        return `
+        <div class="quiz-block">
+          <p class="quiz-meta">Pregunta ${idx + 1} de ${total}</p>
+          <h3 class="quiz-question">${escapeHtml(q.pregunta)}</h3>
+          <div class="quiz-options" role="group" aria-label="${escapeHtml(q.pregunta)}">
+            ${q.opciones.map((opt, i) => `
+              <button type="button" class="quiz-option-btn ${sel === i ? 'selected' : ''}"
+                data-quiz-id="${escapeHtml(q.id)}" data-quiz-opt="${i}" aria-pressed="${sel === i}">
+                <span class="opt-letter">${String.fromCharCode(65 + i)})</span>
+                <span lang="de">${escapeHtml(opt)}</span>
+              </button>`).join('')}
+          </div>
+        </div>`;
+      }).join('')}
+      <p class="quiz-hint" id="quiz-progress" aria-live="polite">Respondidas: ${answered} de ${total}</p>
+      <button type="button" class="check-all-btn" data-quiz-evaluate ${answered === total ? '' : 'disabled'}>
+        Entregar evaluación final
+      </button>`;
+  },
+
+  selectQuiz(qId, optIdx) {
+    AppState.userAnswers[qId] = optIdx;
+    AppState.save();
+    this.renderContainer();
+    this.calculateProgress();
+  },
+
+  evaluateQuiz() {
+    const pantalla = LECCION.pantallas.find(p => p.tipo === 'quiz');
+    if (!pantalla) return;
+    const preguntas = pantalla.datos.preguntas;
+    const pendientes = preguntas.filter(q => AppState.userAnswers[q.id] === undefined);
+    if (pendientes.length) {
+      const el = document.getElementById('quiz-progress');
+      if (el) { el.style.color = 'var(--burgundy)'; el.textContent = `Faltan ${pendientes.length} pregunta(s) por responder.`; }
+      return;
+    }
+
+    let correct = 0;
+    preguntas.forEach(q => { if (AppState.userAnswers[q.id] === q.correcta) correct++; });
+    const total = preguntas.length;
+    const pct = Math.round((correct / total) * 100);
+
+    const m = LECCION.meta;
+    let title = 'Sigue practicando', icon = '✍️';
+    let msg = m.quizRetryMsg  || 'Repasa la explicación y los ejercicios. Cada error es un paso en el aprendizaje.';
+    if (pct === 100) {
+      title = '¡Perfecto! Dominio absoluto'; icon = '🎉';
+      msg   = m.quizPerfectMsg || 'Completaste la lección sin errores.';
+      triggerConfetti();
+    } else if (pct >= 70) {
+      title = '¡Excelente trabajo!'; icon = '👏';
+      msg   = m.quizGoodMsg   || 'Buen dominio del contenido. Repasa los errores.';
+    }
+
+    AppState.quizEvaluated = true;
+    AppState.quizResult = { correct, total, pct, title, icon, msg };
+    AppState.save();
+
+    this.renderContainer();
+    this.calculateProgress();
+  },
+
+  restartQuiz() {
+    AppState.userAnswers   = {};
+    AppState.quizEvaluated = false;
+    AppState.quizResult    = null;
+    AppState.save();
+    const quizScreen = LECCION.pantallas.find(p => p.tipo === 'quiz');
+    if (quizScreen) this.switchScreen(quizScreen.id);
+  },
+
+  templateAbgeben(d) {
+    if (AppState.examSubmitted && AppState.examResult) {
+      const r = AppState.examResult;
+      const pct = Math.round(r.correctas / r.total * 100);
+      return `
+        <div class="abgeben-wrap">
+          <div class="eyebrow">✓ Prüfung abgegeben</div>
+          <h2 class="section-title">${escapeHtml(d.titulo || 'Ergebnis')}</h2>
+          <div class="abgaben-result">
+            <div class="abgaben-result-title">Dein Ergebnis</div>
+            <div class="abgaben-score">${r.correctas}<span>/${r.total} Punkte (${pct}%)</span></div>
+            <p style="color:var(--gray);font-size:0.9rem;text-align:center;">
+              ${pct >= 80 ? '🌟 Ausgezeichnet!' : pct >= 60 ? '👍 Gut gemacht!' : '📚 Noch üben!'}
+            </p>
+          </div>
+          <div style="margin-top:16px;">
+            <button class="prod-action-btn" data-exam-review="true" style="width:100%;padding:14px;">
+              Antworten überprüfen
+            </button>
+          </div>
+        </div>`;
+    }
+
+    const examPantallas = LECCION.pantallas.filter(p => p.tipo === 'practica' && p.modo === 'examen');
+    let totalItems = 0, respondidas = 0;
+    
+    examPantallas.forEach(p => {
+      p.datos.bloques?.forEach(b => {
+        if (b.tipo === 'imagen_formulario') {
+          b.datos.filas.forEach(f => {
+            totalItems += 2;
+            if (AppState.examAnswers[f.id + '_land']?.trim()) respondidas++;
+            if (AppState.examAnswers[f.id + '_hs']?.trim()) respondidas++;
+          });
+        } else if (b.tipo === 'respuesta_corta' || b.tipo === 'quiz_codigo') {
+          b.datos.items.forEach(item => {
+            totalItems++;
+            if (AppState.examAnswers[item.id]?.trim()) respondidas++;
+          });
+          if (b.tipo === 'quiz_codigo' && b.datos.losungswort) {
+            totalItems++;
+            if (AppState.examAnswers[b.id + '_losungswort']?.trim()) respondidas++;
+          }
+        } else if (b.tipo === 'match') {
+          totalItems += b.datos.colA.length;
+          respondidas += Object.keys(AppState.blockResults[b.id] || {}).length;
+        } else if (b.tipo === 'dnd') {
+          totalItems += b.datos.items.length;
+          respondidas += Object.keys(AppState.dndState[b.id] || {}).length;
+        }
+      });
+    });
+
+    const pendientes = totalItems - respondidas;
+
+    return `
+      <div class="abgeben-wrap">
+        <div class="eyebrow">📋 ${escapeHtml(d.titulo || 'Prüfung abgeben')}</div>
+        <h2 class="section-title">${escapeHtml(d.subtitulo || 'Bereit abzugeben?')}</h2>
+        <div class="abgeben-status">
+          <div class="abgaben-stat">
+            <div class="abgaben-stat-num">${respondidas}</div>
+            <div class="abgaben-stat-label">Beantwortet</div>
+          </div>
+          <div class="abgaben-stat">
+            <div class="abgaben-stat-num" style="color:${pendientes > 0 ? '#d32f2f' : 'var(--accent)'};">${pendientes}</div>
+            <div class="abgaben-stat-label">Ausstehend</div>
+          </div>
+          <div class="abgaben-stat">
+            <div class="abgaben-stat-num">${totalItems}</div>
+            <div class="abgaben-stat-label">Gesamt</div>
+          </div>
+        </div>
+        ${pendientes > 0 ? `<div class="abgaben-warn">⚠️ Du hast noch ${pendientes} Frage(n) nicht beantwortet. Du kannst trotzdem abgeben.</div>` : '<div class="abgaben-warn" style="background:rgba(44,94,67,0.1);border-color:var(--accent);color:var(--accent);">✓ Alle Fragen beantwortet!</div>'}
+        <button class="btn-abgeben" data-exam-submit="true">
+          Prüfung abgeben
+        </button>
+      </div>`;
+  },
+
+  evaluateExam() {
+    const examPantallas = LECCION.pantallas.filter(p => p.tipo === 'practica' && p.modo === 'examen');
+    let total = 0, correctas = 0;
+    const errores = [];
+
+    examPantallas.forEach(pantalla => {
+      pantalla.datos.bloques?.forEach(bloque => {
+        const tol = bloque.datos?.tolerancia ?? 1;
+
+        if (bloque.tipo === 'imagen_formulario') {
+          bloque.datos.filas.forEach(item => {
+            const landKey  = item.id + '_land';
+            const hsKey    = item.id + '_hs';
+            const landVal  = AppState.examAnswers[landKey]?.trim() || '';
+            const hsVal    = AppState.examAnswers[hsKey]?.trim()   || '';
+            const altLand  = [item.land, ...(item.alternativasLand || [])];
+            const altHs    = [item.hauptstadt, ...(item.alternativasHauptstadt || [])];
+            const landOk   = altLand.some(a => this._examMatch(landVal, a, tol));
+            const hsOk     = altHs.some(a => this._examMatch(hsVal, a, tol));
+            total += 2;
+            if (landOk) correctas++; else errores.push({ seccion: pantalla.navLabel, item: `${item.numero} Land`, respuestaUsuario: landVal, respuestaCorrecta: item.land });
+            if (hsOk)   correctas++; else errores.push({ seccion: pantalla.navLabel, item: `${item.numero} Hauptstadt`, respuestaUsuario: hsVal, respuestaCorrecta: item.hauptstadt });
+            AppState.blockResults[item.id] = { land: landOk, hauptstadt: hsOk };
+          });
+        } else if (bloque.tipo === 'respuesta_corta') {
+          bloque.datos.items.forEach(item => {
+            const val = AppState.examAnswers[item.id]?.trim() || '';
+            let ok = false;
+            if (bloque.datos.modoCorreccion === 'lista_valida') {
+              const respuestas = (item.respuestasValidas || [item.solucion]);
+              const userList = val.split(',').map(s => s.trim()).filter(Boolean);
+              const needed = item.cantidad || 1;
+              const matches = userList.filter(u => respuestas.some(r => this._examMatch(u, r, tol)));
+              ok = matches.length >= needed;
+            } else {
+              ok = [item.solucion, ...(item.alternativas || [])].some(s => this._examMatch(val, s, tol));
+            }
+            total++;
+            if (ok) correctas++; else errores.push({ seccion: pantalla.navLabel, item: item.label || item.id, respuestaUsuario: val, respuestaCorrecta: item.solucion });
+            AppState.blockResults[item.id] = { complete: true, correct: ok };
+          });
+        } else if (bloque.tipo === 'quiz_codigo') {
+          bloque.datos.items.forEach(item => {
+            const val = AppState.examAnswers[item.id];
+            const ok  = val === item.correcta;
+            total++;
+            if (ok) correctas++; else errores.push({ seccion: pantalla.navLabel, item: item.pregunta?.substring(0,40), respuestaUsuario: val, respuestaCorrecta: item.correcta });
+            AppState.blockResults[item.id] = { complete: true, correct: ok };
+          });
+          
+          if (bloque.datos.losungswort) {
+            const lw = AppState.examAnswers[bloque.id + '_losungswort']?.trim() || '';
+            const ok = normalizeAnswer(lw) === normalizeAnswer(bloque.datos.losungswort);
+            total++;
+            if (ok) correctas++; else errores.push({ seccion: pantalla.navLabel, item: 'Lösungswort', respuestaUsuario: lw, respuestaCorrecta: bloque.datos.losungswort });
+            AppState.blockResults[bloque.id + '_losungswort'] = { correct: ok };
+          }
+        } else if (bloque.tipo === 'match') {
+          const resultados = AppState.blockResults[bloque.id] || {};
+          bloque.datos.colA.forEach(itemA => {
+            total++;
+            const res = resultados[itemA.id];
+            if (res && res.correct) {
+              correctas++;
+            } else {
+              const itemR = bloque.datos.colB.find(x => x.id === bloque.datos.pares[itemA.id])?.texto;
+              const userR = res ? bloque.datos.colB.find(x => x.id === res.rightId)?.texto : '(sin respuesta)';
+              errores.push({ seccion: pantalla.navLabel, item: itemA.texto, respuestaUsuario: userR, respuestaCorrecta: itemR });
+            }
+          });
+        } else if (bloque.tipo === 'dnd') {
+          const estado = AppState.dndState[bloque.id] || {};
+          const dndResult = {};
+          bloque.datos.items.forEach(item => {
+            total++;
+            const userZone = estado[item.id];
+            const isCorrect = userZone === item.categoriaCorrecta;
+            if (isCorrect) {
+              correctas++;
+            } else {
+              const correctZoneLabel = bloque.datos.zonas.find(z => z.id === item.categoriaCorrecta)?.etiqueta;
+              const userZoneLabel = userZone ? bloque.datos.zonas.find(z => z.id === userZone)?.etiqueta : '(im Banco)';
+              errores.push({ seccion: pantalla.navLabel, item: item.texto, respuestaUsuario: userZoneLabel, respuestaCorrecta: correctZoneLabel });
+            }
+            dndResult[item.id] = { correct: isCorrect, zona: userZone };
+          });
+          AppState.blockResults[bloque.id] = dndResult;
+        }
+      });
+    });
+
+    AppState.examResult    = { total, correctas, errores };
+    AppState.examSubmitted = true;
+    AppState.save();
+    
+    if (total > 0 && correctas === total) {
+       triggerConfetti();
+    }
+
+    const abgabenPantalla = LECCION.pantallas.find(p => p.tipo === 'abgeben');
+    if (abgabenPantalla) this.switchScreen(abgabenPantalla.id);
+  },
+
+  _examMatch(user, solution, tolerancia = 1) {
+    if (!user) return false;
+    const u = normalizeAnswer(user);
+    const s = normalizeAnswer(solution);
+    if (u === s) return true;
+    if (tolerancia === 0) return false;
+    if (s.length <= 3 || /^\d+$/.test(s.replace(/\s/g, ''))) return false;
+    return levenshtein(u, s) <= tolerancia;
+  },
+
+  templatePaginaCuento(d) {
+    const imgBlock = d.imagen
+      ? `<div class="story-img-wrap"><img src="${d.imagen}" alt="${escapeHtml(d.titulo)}" loading="lazy"></div>`
+      : '';
+    const parrafos = d.texto.split('\n\n').map(p => `<p class="story-text">${escapeHtml(p)}</p>`).join('');
+    return `
+      <div class="eyebrow">Reflexión · ${escapeHtml(d.numero)}</div>
+      <h2 class="section-title">${escapeHtml(d.titulo)}</h2>
+      ${imgBlock}
+      <div class="story-page">
+        <div class="story-text-block">
+          ${parrafos}
+        </div>
+        ${d.audioText ? `
+        <div class="story-audio-row">
+          ${this.audioBtn(d.audioText, 'Escuchar resumen')}
+          <span style="font-size:0.8rem;color:var(--gray);">Escuchar resumen</span>
+        </div>` : ''}
+      </div>`;
+  }
+};
+
+const PracticeEngine = {
+
+  templatePractica(d, esExamen = false) {
+    if (!d.bloques?.length) return `<p class="prod-feedback incorrect">Sin bloques definidos.</p>`;
+    return `
+      <div class="eyebrow">${escapeHtml(d.categoria)}</div>
+      ${esExamen ? '<div class="exam-mode-badge">🔒 Prüfungsmodus</div>' : ''}
+      <h2 class="section-title">${escapeHtml(d.titulo)}</h2>
+      <p class="section-desc">${escapeHtml(d.descripcion)}</p>
+      <div class="practice-stack">
+        ${d.bloques.map(b => this.templateBlock(b, esExamen)).join('')}
+      </div>`;
+  },
+
+  templateBlock(b, esExamen = false) {
+    const dispatch = {
+      sort:             () => this.templateSort(b),
+      dictado:          () => this.templateDictado(b),
+      match:            () => this.templateMatch(b, esExamen),
+      flashcard:        () => this.templateFlashcard(b),
+      dnd:              () => this.templateDnd(b, esExamen),
+      respuesta_corta:  () => this.templateRespuestaCorta(b, esExamen),
+      quiz_codigo:      () => this.templateQuizCodigo(b, esExamen),
+      imagen_formulario:() => this.templateImagenFormulario(b, esExamen)
+    };
+    const inner = (dispatch[b.tipo] || (() => `<p class="prod-feedback incorrect">Subtipo '${escapeHtml(b.tipo)}' no implementado.</p>`))();
+    return `<section class="practice-block" data-block-id="${escapeHtml(b.id)}">${inner}</section>`;
+  },
+
+  templateSort(b) {
+    const d = b.datos;
+    return `
+      <div class="practice-block-title">🔀 ${escapeHtml(d.titulo || 'Ordena la oración')}</div>
+      <div class="sort-list">
+        ${d.items.map(item => {
+          const estadoGuardado = AppState.sortState[item.id] || [];
+          const enTarget = estadoGuardado;
+          const enBank   = item.palabras.filter(p => !enTarget.includes(p));
+          const completo = AppState.blockResults[b.id + '_' + item.id]?.complete;
+          const correcto = AppState.blockResults[b.id + '_' + item.id]?.correct;
+          return `
+          <div class="sort-item" data-sort-item="${escapeHtml(item.id)}" data-sort-block="${escapeHtml(b.id)}" data-sort-sol="${escapeHtml(item.solucion)}">
+            <div class="sort-prompt">${escapeHtml(item.instruccion)}</div>
+            <div class="sort-bank" data-sort-bank="${escapeHtml(item.id)}">
+              ${enBank.map((w,i) => `<span class="sort-word${completo ? (correcto ? ' correct' : ' incorrect') : ''}" data-sort-word="${escapeHtml(w)}" data-sort-from="bank">${escapeHtml(w)}</span>`).join('')}
+            </div>
+            <div class="sort-target" data-sort-target="${escapeHtml(item.id)}">
+              ${enTarget.map(w => `<span class="sort-word in-target${completo ? (correcto ? ' correct' : ' incorrect') : ''}" data-sort-word="${escapeHtml(w)}" data-sort-from="target">${escapeHtml(w)}</span>`).join('')}
+            </div>
+            <div class="sort-actions">
+              <button class="prod-action-btn" data-sort-check="${escapeHtml(item.id)}" data-sort-block="${escapeHtml(b.id)}" ${completo ? 'disabled' : ''}>Verificar</button>
+              <button class="prod-action-btn" data-sort-reset="${escapeHtml(item.id)}" data-sort-block="${escapeHtml(b.id)}" style="background:var(--gray-light);color:var(--dark);">Reiniciar</button>
+            </div>
+            <div class="sort-feedback ${completo ? 'visible ' + (correcto ? 'exact' : 'wrong') : ''}" id="sort-fb-${escapeHtml(item.id)}">
+              ${completo ? (correcto ? '✓ ¡Correcto!' : `✗ Orden correcto: <em>${escapeHtml(item.solucion)}</em>`) : ''}
+            </div>
+          </div>`;
+        }).join('')}
+      </div>`;
+  },
+  
+  templateDictado(b) {
+    const d = b.datos;
+    return `
+      <div class="practice-block-title">🎧 ${escapeHtml(d.titulo || 'Dictado')}</div>
+      <div class="dictado-list">
+        ${d.items.map(item => {
+          const guardado  = AppState.blockAnswers[item.id] || '';
+          const resultado = AppState.blockResults[b.id + '_' + item.id];
+          const completo  = resultado?.complete || false;
+          const tipoCls   = resultado?.tipo || '';
+          return `
+          <div class="dictado-item" data-dictado-item="${escapeHtml(item.id)}" data-dictado-block="${escapeHtml(b.id)}" data-dictado-sol="${escapeHtml(item.solucion)}">
+            <p class="dictado-prompt">${escapeHtml(item.instruccion || 'Escucha y escribe lo que oyes.')}</p>
+            <div class="dictado-play-row">
+              <button class="dictado-play-btn" data-dictado-play="${escapeHtml(item.solucion)}" aria-label="Reproducir audio">
+                🔊 Escuchar
+              </button>
+            </div>
+            <div class="dictado-input-row">
+              <input class="dictado-input" type="text"
+                placeholder="Escribe lo que escuchas…"
+                value="${escapeHtml(guardado)}"
+                data-dictado-input="${escapeHtml(item.id)}"
+                ${completo ? 'disabled' : ''}
+                autocomplete="off" autocorrect="off" spellcheck="false">
+              <button class="prod-action-btn" data-dictado-check="${escapeHtml(item.id)}" data-dictado-block="${escapeHtml(b.id)}" ${completo ? 'disabled' : ''}>Verificar</button>
+              <button class="prod-action-btn" data-dictado-reset="${escapeHtml(item.id)}" data-dictado-block="${escapeHtml(b.id)}" style="background:var(--gray-light);color:var(--dark);">Reiniciar</button>
+            </div>
+            <div class="dictado-feedback ${completo ? 'visible ' + tipoCls : ''}" id="dictado-fb-${escapeHtml(item.id)}">
+              ${completo ? resultado.mensaje : ''}
+            </div>
+          </div>`;
+        }).join('')}
+      </div>`;
+  },
+
+  templateMatch(b, esExamen = false) {
+    const d = b.datos;
+    const resultados = AppState.blockResults[b.id] || {};
+    const submitted = AppState.examSubmitted;
+    
+    return `
+      <div class="practice-block-title">🔗 ${escapeHtml(d.titulo || 'Empareja')}</div>
+      <div class="match-grid">
+        <div class="match-col">
+          <div class="match-col-label">${escapeHtml(d.labelA || 'Columna A')}</div>
+          ${d.colA.map(item => {
+            const res = resultados[item.id];
+            const cls = res ? ((esExamen && !submitted) ? 'matched-neutral' : (res.correct ? 'matched' : 'wrong')) : '';
+            return `<button class="match-btn ${cls}" data-match-side="left" data-match-id="${escapeHtml(item.id)}" data-match-block="${escapeHtml(b.id)}" ${res || submitted ? 'disabled' : ''}>${escapeHtml(item.texto)}</button>`;
+          }).join('')}
+        </div>
+        <div class="match-col">
+          <div class="match-col-label">${escapeHtml(d.labelB || 'Columna B')}</div>
+          ${d.colB.map(item => {
+            const matchedLeft = Object.entries(resultados).find(([,r]) => r.rightId === item.id);
+            const isCorrect = matchedLeft && matchedLeft[1].correct;
+            const isMatched = !!matchedLeft;
+            const cls = isMatched ? ((esExamen && !submitted) ? 'matched-neutral' : (isCorrect ? 'matched' : 'wrong')) : '';
+            return `<button class="match-btn ${cls}" data-match-side="right" data-match-id="${escapeHtml(item.id)}" data-match-block="${escapeHtml(b.id)}" ${isMatched || submitted ? 'disabled' : ''}>${escapeHtml(item.texto)}</button>`;
+          }).join('')}
+        </div>
+      </div>
+      <div class="match-actions" style="${esExamen && submitted ? 'display:none;' : ''}">
+        <button class="prod-action-btn" data-match-reset="${escapeHtml(b.id)}" style="background:var(--gray-light);color:var(--dark);">Reiniciar</button>
+      </div>
+      <div class="match-feedback ${Object.keys(resultados).length ? 'visible ' + (Object.values(resultados).every(r => r.correct) ? 'all-matched' : 'partial') : ''}" id="match-fb-${escapeHtml(b.id)}" style="${esExamen && !submitted ? 'display:none;' : ''}">
+        ${Object.keys(resultados).length
+          ? (Object.values(resultados).every(r => r.correct) ? '✓ ¡Todos emparejados!' : `${Object.values(resultados).filter(r=>r.correct).length}/${d.colA.length} correctos`)
+          : ''}
+      </div>`;
+  },
+
+  templateFlashcard(b) {
+    const d = b.datos;
+    const vistas = d.items.filter(i => AppState.flashcardState[i.id]).length;
+    const total  = d.items.length;
+    return `
+      <div class="practice-block-title">🃏 ${escapeHtml(d.titulo || 'Tarjetas')}</div>
+      <p class="fc-progress">${vistas}/${total} vistas esta sesión</p>
+      <div class="fc-grid">
+        ${d.items.map(item => {
+          const vista   = AppState.flashcardState[item.id] || false;
+          const flipped = vista;
+          return `
+          <div class="flashcard${flipped ? ' flipped' : ''}${vista ? ' seen' : ''}"
+               data-fc-id="${escapeHtml(item.id)}"
+               data-fc-block="${escapeHtml(b.id)}"
+               role="button" aria-label="Tarjeta: ${escapeHtml(item.frente)}" tabindex="0">
+            <div class="fc-inner">
+              <div class="fc-front">${escapeHtml(item.frente)}</div>
+              <div class="fc-back">${escapeHtml(item.reverso)}</div>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+      <p class="fc-hint">Toca una tarjeta para ver la traducción.</p>`;
+  },
+
+  templateDnd(b, esExamen = false) {
+    const d = b.datos;
+    const estado     = AppState.dndState[b.id] || {};
+    const resultados = AppState.blockResults[b.id] || {};
+    const submitted = AppState.examSubmitted;
+
+    const enBanco = d.items.filter(i => !estado[i.id]);
+    const itemsPorZona = id => d.items.filter(i => estado[i.id] === id);
+
+    const renderItem = (item) => {
+      const res = resultados[item.id];
+      let cls = '';
+      if (res) {
+         if (esExamen && !submitted) cls = 'dnd-locked-neutral';
+         else cls = res.correct ? 'correct' : 'incorrect';
+      } else if (esExamen && submitted && estado[item.id]) {
+         cls = 'incorrect';
+      } else if (esExamen && submitted && !estado[item.id]) {
+         cls = 'incorrect';
+      }
+      return `<span class="dnd-item ${cls}"
+        data-dnd-id="${escapeHtml(item.id)}"
+        data-dnd-block="${escapeHtml(b.id)}"
+        ${res || submitted ? 'data-dnd-locked="true"' : ''}
+      >${escapeHtml(item.texto)}</span>`;
+    };
+
+    const total    = d.items.length;
+    const correctos = Object.values(resultados).filter(r => r.correct).length;
+    const evaluados = Object.keys(resultados).length;
+
+    return `
+      <div class="practice-block-title">📂 ${escapeHtml(d.titulo || 'Clasifica')}</div>
+      <div class="dnd-wrap" data-dnd-block="${escapeHtml(b.id)}">
+        <div>
+          <div class="dnd-bank-label">Ítems disponibles</div>
+          <div class="dnd-bank" data-dnd-zone="__bank__">
+            ${enBanco.map(renderItem).join('')}
+          </div>
+        </div>
+        <div>
+          <div class="dnd-zones-label">Zonas</div>
+          <div class="dnd-zones">
+            ${d.zonas.map(z => `
+              <div class="dnd-zone" data-dnd-zone="${escapeHtml(z.id)}" data-dnd-block="${escapeHtml(b.id)}">
+                <div class="dnd-zone-label">${escapeHtml(z.etiqueta)}</div>
+                ${itemsPorZona(z.id).map(renderItem).join('')}
+              </div>`).join('')}
+          </div>
+        </div>
+        <div class="dnd-actions" style="${esExamen && submitted ? 'display:none;' : ''}">
+          ${esExamen ? '' : `<button class="prod-action-btn" data-dnd-check="${escapeHtml(b.id)}">Verificar</button>`}
+          <button class="prod-action-btn" data-dnd-reset="${escapeHtml(b.id)}" style="background:var(--gray-light);color:var(--dark);">Reiniciar</button>
+        </div>
+        <div class="dnd-feedback ${evaluados ? 'visible ' + (correctos === total ? 'all-correct' : 'partial') : ''}" id="dnd-fb-${escapeHtml(b.id)}" style="${esExamen && !submitted ? 'display:none;' : ''}">
+          ${evaluados ? (correctos === total ? '✓ ¡Todo correcto!' : `${correctos}/${total} correctos`) : ''}
+        </div>
+      </div>`;
+  },
+
+  templateRespuestaCorta(b, esExamen = false) {
+    const d = b.datos;
+    const submitted = AppState.examSubmitted;
+    return `
+      <div class="practice-block-title">✏️ ${escapeHtml(d.titulo || 'Antworte')}</div>
+      ${d.texto ? `<p style="font-size:0.95rem;color:var(--dark);margin-bottom:16px;line-height:1.6;">${escapeHtml(d.texto)}</p>` : ''}
+      <div>
+        ${d.items.map(item => {
+          const val = AppState.examAnswers[item.id] || '';
+          const res = AppState.blockResults[item.id];
+          const itemCls = submitted && res ? (res.correct ? 'correcto' : 'incorrecto') : '';
+          const tag = submitted && res ? `<span class="exam-result-tag ${res.correct ? 'ok' : 'err'}">${res.correct ? '✓' : '✗'}</span>` : '';
+          return `
+          <div class="exam-item ${itemCls}">
+            <div class="exam-item-label">${escapeHtml(item.label || item.id)}${tag}</div>
+            <div class="exam-item-row">
+              <input class="exam-input" type="text"
+                placeholder="${escapeHtml(item.placeholder || '')}"
+                value="${escapeHtml(val)}"
+                data-exam-input="${escapeHtml(item.id)}"
+                ${submitted ? 'disabled' : ''}
+                autocomplete="off" spellcheck="false">
+            </div>
+            ${item.hint ? `<div class="exam-item-hint">${escapeHtml(item.hint)}</div>` : ''}
+            ${submitted && !res?.correct ? `<div class="exam-solution">✓ ${escapeHtml(item.solucion)}</div>` : ''}
+          </div>`;
+        }).join('')}
+      </div>`;
+  },
+
+  templateQuizCodigo(b, esExamen = false) {
+    const d = b.datos;
+    const submitted = AppState.examSubmitted;
+
+    return `
+      <div class="practice-block-title">🔤 ${escapeHtml(d.titulo || 'Quiz')}</div>
+      ${d.instruccion ? `<p style="font-size:0.9rem;color:var(--gray);margin-bottom:14px;">${escapeHtml(d.instruccion)}</p>` : ''}
+      <div>
+        ${d.items.map((item, idx) => {
+          const sel = AppState.examAnswers[item.id];
+          const res = AppState.blockResults[item.id];
+          const tag = submitted && res ? `<span class="exam-result-tag ${res.correct ? 'ok' : 'err'}">${res.correct ? '✓' : '✗'}</span>` : '';
+          return `
+          <div class="exam-item ${submitted && res ? (res.correct ? 'correcto' : 'incorrecto') : ''}" style="margin-bottom:12px;">
+            <div class="exam-item-label">${idx+1}. ${escapeHtml(item.pregunta)}${tag}</div>
+            <div style="display:flex;flex-direction:column;gap:6px;margin-top:8px;">
+              ${item.opciones.map(op => `
+                <label style="display:flex;align-items:center;gap:8px;cursor:${submitted ? 'default' : 'pointer'};">
+                  <input type="radio" name="qc_${escapeHtml(item.id)}"
+                    value="${escapeHtml(op.codigo)}"
+                    data-exam-radio="${escapeHtml(item.id)}"
+                    ${sel === op.codigo ? 'checked' : ''}
+                    ${submitted ? 'disabled' : ''}>
+                  <span style="font-family:'DM Mono',monospace;font-size:0.92rem;">${escapeHtml(op.codigo)} – ${escapeHtml(op.texto)}</span>
+                </label>`).join('')}
+            </div>
+            ${submitted && !res?.correct ? `<div class="exam-solution">✓ ${escapeHtml(item.correcta)} – ${escapeHtml(item.opciones.find(o=>o.codigo===item.correcta)?.texto||'')}</div>` : ''}
+          </div>`;
+        }).join('')}
+      </div>
+      ${d.losungswort ? `
+      <div class="exam-item" style="margin-top:16px;">
+        <div class="exam-item-label">Lösungswort:</div>
+        <div class="exam-item-row">
+          <input class="exam-input" type="text" style="font-family:'DM Mono',monospace;letter-spacing:4px;font-weight:700;"
+            placeholder="${'_'.repeat(d.losungswort.length)}"
+            value="${escapeHtml(AppState.examAnswers[b.id + '_losungswort'] || '')}"
+            data-exam-input="${escapeHtml(b.id)}_losungswort"
+            ${submitted ? 'disabled' : ''}>
+        </div>
+        <div class="exam-item-hint">Buchstaben der richtigen Antworten ergeben das Lösungswort.</div>
+        ${submitted ? `<div class="exam-solution">✓ ${escapeHtml(d.losungswort)}</div>` : ''}
+      </div>` : ''}`;
+  },
+
+  templateImagenFormulario(b, esExamen = false) {
+    const d = b.datos;
+    const submitted = AppState.examSubmitted;
+    return `
+      <div class="practice-block-title">🗺️ ${escapeHtml(d.titulo || 'Länder und Hauptstädte')}</div>
+      ${d.instruccion ? `<p style="font-size:0.9rem;color:var(--gray);margin-bottom:14px;">${escapeHtml(d.instruccion)}</p>` : ''}
+      <div class="img-form-img-wrap">
+        <img src="${escapeHtml(d.imagen)}" alt="${escapeHtml(d.titulo)}" loading="lazy" data-action="lightbox">
+      </div>
+      <table class="img-form-table">
+        <thead>
+          <tr>
+            <th style="width:32px;">#</th>
+            <th>Land</th>
+            <th>Hauptstadt</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${d.filas.map(fila => {
+            const landKey = fila.id + '_land';
+            const hsKey   = fila.id + '_hs';
+            const landVal = AppState.examAnswers[landKey] || '';
+            const hsVal   = AppState.examAnswers[hsKey]   || '';
+            const res = AppState.blockResults[fila.id] || {};
+            return `
+            <tr>
+              <td class="img-form-nr">${fila.numero}</td>
+              <td>
+                <input class="exam-input" type="text" style="width:100%;"
+                  value="${escapeHtml(landVal)}"
+                  data-exam-input="${escapeHtml(landKey)}"
+                  ${submitted ? 'disabled' : ''}
+                  placeholder="Land…" autocomplete="off" spellcheck="false">
+                ${submitted && res.land === false ? `<div class="exam-solution">✓ ${escapeHtml(fila.land)}</div>` : ''}
+              </td>
+              <td>
+                <input class="exam-input" type="text" style="width:100%;"
+                  value="${escapeHtml(hsVal)}"
+                  data-exam-input="${escapeHtml(hsKey)}"
+                  ${submitted ? 'disabled' : ''}
+                  placeholder="Hauptstadt…" autocomplete="off" spellcheck="false">
+                ${submitted && res.hauptstadt === false ? `<div class="exam-solution">✓ ${escapeHtml(fila.hauptstadt)}</div>` : ''}
+              </td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>`;
+  },
+
+  handleSortWord(el) {
+    const word    = el.dataset.sortWord;
+    const from    = el.dataset.sortFrom;
+    const itemEl  = el.closest('[data-sort-item]');
+    if (!itemEl) return;
+    const itemId  = itemEl.dataset.sortItem;
+    const blockId = itemEl.dataset.sortBlock;
+    
+    if (AppState.blockResults[blockId + '_' + itemId]?.complete) return;
+
+    const state = AppState.sortState[itemId] ? [...AppState.sortState[itemId]] : [];
+    if (from === 'bank') {
+      if (!state.includes(word)) state.push(word);
+    } else {
+      const idx = state.lastIndexOf(word);
+      if (idx !== -1) state.splice(idx, 1);
+    }
+    AppState.sortState[itemId] = state;
+    AppState.save();
+    this._refreshSortItem(itemEl, itemId, blockId);
+  },
+
+  checkSort(itemId, blockId) {
+    const itemEl = document.querySelector(`[data-sort-item="${itemId}"]`);
+    if (!itemEl) return;
+    const solucion = itemEl.dataset.sortSol;
+    const state    = AppState.sortState[itemId] || [];
+    const correcto = state.join(' ') === solucion;
+    const resultKey = blockId + '_' + itemId;
+    AppState.blockResults[resultKey] = { complete: true, correct: correcto };
+    AppState.save();
+    this._refreshSortItem(itemEl, itemId, blockId);
+  },
+
+  resetSort(itemId, blockId) {
+    delete AppState.sortState[itemId];
+    const resultKey = blockId + '_' + itemId;
+    delete AppState.blockResults[resultKey];
+    AppState.save();
+    const itemEl = document.querySelector(`[data-sort-item="${itemId}"]`);
+    if (itemEl) this._refreshSortItem(itemEl, itemId, blockId);
+  },
+
+  _refreshSortItem(itemEl, itemId, blockId) {
+    const solucion  = itemEl.dataset.sortSol;
+    const state     = AppState.sortState[itemId] || [];
+    const result    = AppState.blockResults[blockId + '_' + itemId];
+    const completo  = result?.complete || false;
+    const correcto  = result?.correct  || false;
+
+    const uniqueWords = [...new Set([
+      ...Array.from(itemEl.querySelectorAll('[data-sort-bank] [data-sort-word]')).map(w => w.dataset.sortWord),
+      ...Array.from(itemEl.querySelectorAll('[data-sort-target] [data-sort-word]')).map(w => w.dataset.sortWord)
+    ])];
+
+    const inTarget = state;
+    const inBank   = uniqueWords.filter(w => !inTarget.includes(w));
+
+    const cls = completo ? (correcto ? ' correct' : ' incorrect') : '';
+    const bankEl   = itemEl.querySelector('[data-sort-bank]');
+    const targetEl = itemEl.querySelector('[data-sort-target]');
+    const fbEl     = itemEl.querySelector('.sort-feedback');
+    const checkBtn = itemEl.querySelector('[data-sort-check]');
+
+    bankEl.innerHTML   = inBank.map(w =>
+      `<span class="sort-word${cls}" data-sort-word="${escapeHtml(w)}" data-sort-from="bank">${escapeHtml(w)}</span>`
+    ).join('');
+    targetEl.innerHTML = inTarget.map(w =>
+      `<span class="sort-word in-target${cls}" data-sort-word="${escapeHtml(w)}" data-sort-from="target">${escapeHtml(w)}</span>`
+    ).join('');
+
+    if (completo) {
+      fbEl.className = `sort-feedback visible ${correcto ? 'exact' : 'wrong'}`;
+      fbEl.innerHTML = correcto ? '✓ ¡Correcto!' : `✗ Orden correcto: <em>${escapeHtml(solucion)}</em>`;
+      if (checkBtn) checkBtn.disabled = true;
+    } else {
+      fbEl.className = 'sort-feedback';
+      fbEl.innerHTML = '';
+      if (checkBtn) checkBtn.disabled = false;
+    }
+  },
+
+  checkDictado(itemId, blockId) {
+    const itemEl = document.querySelector(`[data-dictado-item="${itemId}"]`);
+    if (!itemEl) return;
+    const inputEl  = itemEl.querySelector(`[data-dictado-input]`);
+    if (!inputEl) return;
+    const val      = inputEl.value.trim();
+    const solucion = itemEl.dataset.dictadoSol;
+    if (!val) return;
+
+    const exact = normalizeAnswer(val) === normalizeAnswer(solucion);
+    const close = !exact && isAnswerCorrect(val, solucion);
+    const tipo  = exact ? 'exact' : close ? 'close' : 'wrong';
+    const mensaje = exact
+      ? `✓ ¡Correcto! <em>${escapeHtml(solucion)}</em>`
+      : close
+        ? `~ Casi: <em>${escapeHtml(solucion)}</em>`
+        : `✗ Era: <em>${escapeHtml(solucion)}</em>`;
+
+    const resultKey = blockId + '_' + itemId;
+    AppState.blockAnswers[itemId] = val;
+    AppState.blockResults[resultKey] = { complete: true, correct: exact || close, tipo, mensaje };
+    AppState.save();
+    this._refreshDictadoItem(itemEl, itemId, blockId);
+  },
+
+  resetDictado(itemId, blockId) {
+    delete AppState.blockAnswers[itemId];
+    delete AppState.blockResults[blockId + '_' + itemId];
+    AppState.save();
+    const itemEl = document.querySelector(`[data-dictado-item="${itemId}"]`);
+    if (itemEl) this._refreshDictadoItem(itemEl, itemId, blockId);
+  },
+
+  _refreshDictadoItem(itemEl, itemId, blockId) {
+    const resultado = AppState.blockResults[blockId + '_' + itemId];
+    const completo  = resultado?.complete || false;
+    const inputEl   = itemEl.querySelector('[data-dictado-input]');
+    const fbEl      = itemEl.querySelector('.dictado-feedback');
+    const checkBtn  = itemEl.querySelector('[data-dictado-check]');
+
+    if (inputEl) {
+      inputEl.value    = AppState.blockAnswers[itemId] || '';
+      inputEl.disabled = completo;
+    }
+    if (fbEl) {
+      fbEl.className = `dictado-feedback ${completo ? 'visible ' + (resultado.tipo || '') : ''}`;
+      fbEl.innerHTML = completo ? resultado.mensaje : '';
+    }
+    if (checkBtn) checkBtn.disabled = completo;
+  },
+
+  handleMatch(btn) {
+    const side    = btn.dataset.matchSide;
+    const itemId  = btn.dataset.matchId;
+    const blockId = btn.dataset.matchBlock;
+    const blockEl = document.querySelector(`[data-block-id="${blockId}"]`);
+    if (!blockEl) return;
+
+    if (!AppState.matchActive[blockId]) AppState.matchActive[blockId] = { left: null, right: null };
+    const active = AppState.matchActive[blockId];
+
+    if (active[side] === itemId) {
+      active[side] = null;
+      btn.classList.remove('selected');
+      return;
+    }
+
+    if (active[side]) {
+      const prev = blockEl.querySelector(`[data-match-id="${active[side]}"][data-match-side="${side}"]`);
+      if (prev) prev.classList.remove('selected');
+    }
+    active[side] = itemId;
+    btn.classList.add('selected');
+
+    if (active.left && active.right) {
+      this._evaluateMatchPair(blockId, active.left, active.right);
+      active.left = null;
+      active.right = null;
+    }
+  },
+
+  _evaluateMatchPair(blockId, leftId, rightId) {
+    const blockEl = document.querySelector(`[data-block-id="${blockId}"]`);
+    if (!blockEl) return;
+
+    const pantalla = LECCION.pantallas.find(p =>
+      p.tipo === 'practica' && p.datos.bloques?.find(b => b.id === blockId)
+    );
+    const bloque = pantalla?.datos.bloques.find(b => b.id === blockId);
+    if (!bloque) return;
+
+    const esExamen = pantalla.modo === 'examen';
+    const correcto = bloque.datos.pares[leftId] === rightId;
+
+    if (!AppState.blockResults[blockId]) AppState.blockResults[blockId] = {};
+    AppState.blockResults[blockId][leftId] = { matched: true, correct: correcto, rightId };
+    AppState.save();
+
+    const leftBtn  = blockEl.querySelector(`[data-match-id="${leftId}"][data-match-side="left"]`);
+    const rightBtn = blockEl.querySelector(`[data-match-id="${rightId}"][data-match-side="right"]`);
+    
+    const cls = esExamen && !AppState.examSubmitted ? 'matched-neutral' : (correcto ? 'matched' : 'wrong');
+
+    [leftBtn, rightBtn].forEach(b => {
+      if (!b) return;
+      b.classList.remove('selected');
+      b.classList.add(cls);
+      b.disabled = true;
+    });
+
+    this._refreshMatchFeedback(blockId, bloque, esExamen);
+  },
+
+  _refreshMatchFeedback(blockId, bloque, esExamen) {
+    if (esExamen && !AppState.examSubmitted) return;
+    const fbEl = document.getElementById(`match-fb-${blockId}`);
+    if (!fbEl) return;
+    const resultados = AppState.blockResults[blockId] || {};
+    const total    = bloque.datos.colA.length;
+    const correctos = Object.values(resultados).filter(r => r.correct).length;
+    const todos    = correctos === total && Object.keys(resultados).length === total;
+    fbEl.className = `match-feedback visible ${todos ? 'all-matched' : 'partial'}`;
+    fbEl.innerHTML = todos
+      ? '✓ ¡Todos emparejados!'
+      : `${correctos}/${total} correctos`;
+  },
+
+  resetMatch(blockId) {
+    delete AppState.blockResults[blockId];
+    delete AppState.matchActive[blockId];
+    AppState.save();
+    
+    const pantalla = LECCION.pantallas.find(p =>
+      p.tipo === 'practica' && p.datos.bloques?.find(b => b.id === blockId)
+    );
+    const bloque = pantalla?.datos.bloques.find(b => b.id === blockId);
+    const blockEl = document.querySelector(`[data-block-id="${blockId}"]`);
+    if (bloque && blockEl) {
+      blockEl.innerHTML = PracticeEngine.templateMatch(bloque, pantalla.modo === 'examen');
+    }
+  },
+
+  toggleFlashcard(el) {
+    const cardId  = el.dataset.fcId;
+    const blockId = el.dataset.fcBlock;
+    if (!cardId) return;
+
+    el.classList.toggle('flipped');
+    const ahora = el.classList.contains('flipped');
+
+    if (ahora) {
+      AppState.flashcardState[cardId] = true;
+      el.classList.add('seen');
+    }
+
+    const blockEl = el.closest('[data-block-id]');
+    if (blockEl) {
+      const pantalla = LECCION.pantallas.find(p =>
+        p.tipo === 'practica' && p.datos.bloques?.find(b => b.id === blockId)
+      );
+      const bloque = pantalla?.datos.bloques.find(b => b.id === blockId);
+      if (bloque) {
+        const vistas = bloque.datos.items.filter(i => AppState.flashcardState[i.id]).length;
+        const progEl = blockEl.querySelector('.fc-progress');
+        if (progEl) progEl.textContent = `${vistas}/${bloque.datos.items.length} vistas esta sesión`;
+      }
+    }
+  },
+
+  _dndDrag: null,
+
+  initDnd(container) {
+    container.addEventListener('pointerdown', e => {
+      if (AppState.examSubmitted) return;
+      const item = e.target.closest('[data-dnd-id]:not([data-dnd-locked])');
+      if (!item) return;
+      e.preventDefault();
+
+      const rect = item.getBoundingClientRect();
+      const clone = item.cloneNode(true);
+      clone.className = 'dnd-item dnd-clone';
+      clone.style.width  = rect.width + 'px';
+      clone.style.left   = rect.left + 'px';
+      clone.style.top    = rect.top + 'px';
+      document.body.appendChild(clone);
+      item.classList.add('dragging');
+
+      this._dndDrag = {
+        itemId:  item.dataset.dndId,
+        blockId: item.dataset.dndBlock,
+        cloneEl: clone,
+        offsetX: e.clientX - rect.left,
+        offsetY: e.clientY - rect.top,
+        originEl: item
+      };
+    }, { passive: false });
+
+    container.addEventListener('pointermove', e => {
+      if (!this._dndDrag) return;
+      e.preventDefault();
+      const { cloneEl, offsetX, offsetY } = this._dndDrag;
+      cloneEl.style.left = (e.clientX - offsetX) + 'px';
+      cloneEl.style.top  = (e.clientY - offsetY) + 'px';
+
+      document.querySelectorAll('.dnd-zone.drag-over').forEach(z => z.classList.remove('drag-over'));
+      const el = document.elementFromPoint(e.clientX, e.clientY);
+      const zona = el?.closest('[data-dnd-zone]');
+      if (zona && zona.dataset.dndZone !== '__bank__') zona.classList.add('drag-over');
+    }, { passive: false });
+
+    const endDrag = e => {
+      if (!this._dndDrag) return;
+      const { itemId, blockId, cloneEl, originEl } = this._dndDrag;
+      cloneEl.remove();
+      originEl.classList.remove('dragging');
+      document.querySelectorAll('.dnd-zone.drag-over').forEach(z => z.classList.remove('drag-over'));
+
+      const el = document.elementFromPoint(e.clientX, e.clientY);
+      const zona = el?.closest('[data-dnd-zone]');
+      const zoneId = zona?.dataset.dndZone;
+
+      if (zoneId && zoneId !== '__bank__') {
+        if (!AppState.dndState[blockId]) AppState.dndState[blockId] = {};
+        AppState.dndState[blockId][itemId] = zoneId;
+        AppState.save();
+      } else if (zoneId === '__bank__') {
+        if (AppState.dndState[blockId]) delete AppState.dndState[blockId][itemId];
+        AppState.save();
+      }
+
+      this._dndDrag = null;
+
+      this._rerenderDndBlock(blockId);
+      Renderer.calculateProgress();
+    };
+
+    container.addEventListener('pointerup',    endDrag);
+    container.addEventListener('pointercancel', endDrag);
+  },
+
+  checkDnd(blockId) {
+    const pantalla = LECCION.pantallas.find(p =>
+      p.tipo === 'practica' && p.datos.bloques?.find(b => b.id === blockId)
+    );
+    const bloque = pantalla?.datos.bloques.find(b => b.id === blockId);
+    if (!bloque) return;
+
+    const estado = AppState.dndState[blockId] || {};
+    const resultados = {};
+    bloque.datos.items.forEach(item => {
+      const zonaElegida = estado[item.id];
+      if (zonaElegida) {
+        resultados[item.id] = {
+          correct: item.categoriaCorrecta === zonaElegida,
+          zona: zonaElegida
+        };
+      }
+    });
+    AppState.blockResults[blockId] = resultados;
+    AppState.save();
+    this._rerenderDndBlock(blockId);
+  },
+
+  resetDnd(blockId) {
+    if (AppState.dndState[blockId])    delete AppState.dndState[blockId];
+    if (AppState.blockResults[blockId]) delete AppState.blockResults[blockId];
+    AppState.save();
+    this._rerenderDndBlock(blockId);
+  },
+
+  _rerenderDndBlock(blockId) {
+    const pantalla = LECCION.pantallas.find(p =>
+      p.tipo === 'practica' && p.datos.bloques?.find(b => b.id === blockId)
+    );
+    const bloque  = pantalla?.datos.bloques.find(b => b.id === blockId);
+    const blockEl = document.querySelector(`[data-block-id="${blockId}"]`);
+    if (bloque && blockEl) blockEl.innerHTML = PracticeEngine.templateDnd(bloque, pantalla.modo === 'examen');
+  },
+
+  setBlockResult(id, result) {
+    AppState.blockResults[id] = result;
+    AppState.save();
+  },
+
+  markBlockComplete(id) {
+    this.setBlockResult(id, { complete: true });
+  },
+
+  isBlockComplete(b) {
+    switch (b.tipo) {
+      case 'sort':
+      case 'dictado':
+      case 'match':
+      case 'dnd':
+        return AppState.blockResults[b.id]?.complete === true;
+      case 'flashcard':
+        return b.datos?.items?.every(i => AppState.flashcardState[i.id] === true) || false;
+      default:
+        return false;
+    }
+  }
+};
+
+window.addEventListener('load', () => {
+  AudioEngine.init();
+  Renderer.init();
+});
+
+window.addEventListener('resize', () => {
+  Renderer.fitTitulo();
+});
+</script>
+</body>
+</html>
