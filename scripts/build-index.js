@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 const ROOT = process.cwd();
-const LESSONS_DIR = path.join(ROOT, 'lecciones');
+const LESSONS_DIR = path.join(ROOT, 'lecciones');  
 const OUTPUT_FILE = path.join(ROOT, 'index.html');
 
 const LEGACY_LESSONS = [
